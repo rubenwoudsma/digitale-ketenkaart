@@ -105,6 +105,13 @@ class ScanResult:
     mx: str = ""
     spf: str = ""
     dmarc: str = ""
+    mx_providers: str = ""
+    spf_includes: str = ""
+    spf_ip4s: str = ""
+    spf_ip6s: str = ""
+    spf_all_policy: str = ""
+    mail_provider_hint: str = ""
+    mail_sovereignty_hint: str = ""
     https_ok: bool = False
     http_status: str = ""
     final_url: str = ""
@@ -244,6 +251,54 @@ def check_security_txt(domain: str) -> bool:
     return False
 
 
+def parse_spf_and_mx(dns_data: Dict[str, str]) -> Dict[str, str]:
+    """Extract supplier and routing intelligence from MX and SPF records."""
+    mx = dns_data.get("mx", "")
+    spf = dns_data.get("spf", "")
+    haystack = f"{mx} {spf}".lower()
+
+    tokens = spf.split()
+    includes = [t.replace("include:", "") for t in tokens if t.lower().startswith("include:")]
+    ip4s = [t.replace("ip4:", "") for t in tokens if t.lower().startswith("ip4:")]
+    ip6s = [t.replace("ip6:", "") for t in tokens if t.lower().startswith("ip6:")]
+    all_tokens = [t for t in tokens if t.lower() in {"+all", "~all", "-all", "?all"}]
+    all_policy = all_tokens[-1] if all_tokens else ""
+
+    provider_rules = {
+        "protection.outlook.com": ("Microsoft 365 / Exchange Online", "VS leverancier, tenantregio en contractuele waarborgen nodig"),
+        "mail.protection.outlook.com": ("Microsoft 365 / Exchange Online", "VS leverancier, tenantregio en contractuele waarborgen nodig"),
+        "zivver.com": ("Zivver", "Nederlandse leverancier, subverwerkers controleren"),
+        "topdesk.net": ("TOPdesk", "Nederlandse leverancier, hosting en subverwerkers controleren"),
+        "simgroephosting.nl": ("SIMgroep", "Nederlandse gemeentelijke webleverancier, hostingketen controleren"),
+        "flowmailer.net": ("Flowmailer", "Nederlandse leverancier, mailrouting en subverwerkers controleren"),
+        "formulierenserver.nl": ("Formulierenserver", "Nederlandse leverancier, persoonsgegevens waarschijnlijk, subverwerkers controleren"),
+        "pinkprivate.cloud": ("Pink Private Cloud", "Nederlandse of Europese cloudindicatie, contractueel verifieren"),
+        "nines.nl": ("Nines", "Nederlandse hostingindicatie, contractueel verifieren"),
+        "google.com": ("Google Workspace of Google maildiensten", "VS leverancier, regio en dataflow controleren"),
+        "amazonses.com": ("Amazon SES", "VS leverancier, regio controleren"),
+        "sendgrid.net": ("SendGrid", "VS leverancier, dataflow controleren"),
+        "mailgun.org": ("Mailgun", "VS leverancier, dataflow controleren"),
+    }
+
+    providers = []
+    sovereignty_notes = []
+    for needle, values in provider_rules.items():
+        provider, sovereignty = values
+        if needle in haystack:
+            providers.append(provider)
+            sovereignty_notes.append(sovereignty)
+
+    return {
+        "mx_providers": ", ".join(sorted(set(providers))),
+        "spf_includes": ", ".join(sorted(set(includes))),
+        "spf_ip4s": ", ".join(sorted(set(ip4s))),
+        "spf_ip6s": ", ".join(sorted(set(ip6s))),
+        "spf_all_policy": all_policy,
+        "mail_provider_hint": ", ".join(sorted(set(providers))),
+        "mail_sovereignty_hint": " | ".join(sorted(set(sovereignty_notes))),
+    }
+
+
 def hosting_hint_from_dns(dns_data: Dict[str, str], response: Optional[requests.Response]) -> Tuple[str, str]:
     haystack = " ".join([
         dns_data.get("cname", ""),
@@ -305,6 +360,12 @@ def score_result(result: ScanResult) -> ScanResult:
     if result.sovereignty_hint.startswith("VS") or "wereldwijde" in result.sovereignty_hint.lower():
         score += 12
         notes.append(f"Soevereiniteitsvraag: {result.sovereignty_hint}")
+    if "VS leverancier" in result.mail_sovereignty_hint:
+        score += 10
+        notes.append(f"Mailsoevereiniteitsvraag: {result.mail_sovereignty_hint}")
+    if result.spf_all_policy == "~all":
+        score += 3
+        notes.append("SPF gebruikt softfail")
     if result.personal_data_likelihood in {"Waarschijnlijk", "Zeker"}:
         score += 10
         notes.append("Waarschijnlijk persoonsgegevens")
@@ -349,6 +410,11 @@ def scan_domain(domain: str) -> ScanResult:
         dns_data = get_dns(domain)
         for key, value in dns_data.items():
             setattr(result, key, value)
+
+        mail_intel = parse_spf_and_mx(dns_data)
+        for key, value in mail_intel.items():
+            setattr(result, key, value)
+
         result.resolves = bool(result.ipv4 or result.ipv6 or result.cname)
 
         response, error = fetch_site(domain)
@@ -432,6 +498,8 @@ priority_cols = [
     "risk_score",
     "hosting_hint",
     "sovereignty_hint",
+    "mail_provider_hint",
+    "mail_sovereignty_hint",
     "risk_notes",
 ]
 st.dataframe(df[priority_cols].sort_values("risk_score", ascending=False), use_container_width=True)
