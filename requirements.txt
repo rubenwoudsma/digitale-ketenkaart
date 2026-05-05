@@ -1,0 +1,6 @@
+streamlit
+pandas
+requests
+dnspython
+beautifulsoup4
+tldextract
