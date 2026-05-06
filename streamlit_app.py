@@ -34,6 +34,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional
 
+import altair as alt
 import pandas as pd
 import streamlit as st
 
@@ -175,6 +176,118 @@ def sort_by_priority(df: pd.DataFrame) -> pd.DataFrame:
     return result.sort_values(sort_cols, ascending=ascending).drop(columns=["_priority_order"])
 
 
+def as_number(series: pd.Series) -> pd.Series:
+    return pd.to_numeric(series, errors="coerce").fillna(0)
+
+
+def chart_domain_priority(domains: pd.DataFrame) -> Optional[alt.Chart]:
+    required = {"domain", "priority", "us_supplier_count", "high_risk_supplier_count", "p1_questions_count"}
+    if domains.empty or not required.issubset(domains.columns):
+        return None
+
+    view = domains.copy()
+    view["us_supplier_count"] = as_number(view["us_supplier_count"])
+    view["high_risk_supplier_count"] = as_number(view["high_risk_supplier_count"])
+    view["p1_questions_count"] = as_number(view["p1_questions_count"])
+    view["bubble_size"] = (view["p1_questions_count"] + 1) * 120
+    view["priority_label"] = view["priority"].map(priority_badge_text)
+    view = view.sort_values(["priority", "p1_questions_count", "us_supplier_count"], ascending=[True, False, False])
+
+    return (
+        alt.Chart(view)
+        .mark_circle(opacity=0.72)
+        .encode(
+            x=alt.X("us_supplier_count:Q", title="Aantal leveranciers met niet-EU of US-indicatie"),
+            y=alt.Y("high_risk_supplier_count:Q", title="Aantal leveranciers met hoog datarisico"),
+            size=alt.Size("bubble_size:Q", title="Aantal P1-vragen", legend=None),
+            color=alt.Color("priority:N", title="Prioriteit"),
+            tooltip=[
+                alt.Tooltip("domain:N", title="Domein"),
+                alt.Tooltip("priority_label:N", title="Prioriteit"),
+                alt.Tooltip("public_service_layer:N", title="Rol in keten"),
+                alt.Tooltip("us_supplier_count:Q", title="US-indicaties"),
+                alt.Tooltip("high_risk_supplier_count:Q", title="Hoog datarisico"),
+                alt.Tooltip("p1_questions_count:Q", title="P1-vragen"),
+                alt.Tooltip("priority_reason:N", title="Waarom"),
+            ],
+        )
+        .properties(height=430)
+        .interactive()
+    )
+
+
+def chart_supplier_relevance(suppliers: pd.DataFrame) -> Optional[alt.Chart]:
+    required = {"supplier", "domains_count", "p1_questions_count", "highest_data_risk", "jurisdiction_groups"}
+    if suppliers.empty or not required.issubset(suppliers.columns):
+        return None
+
+    view = suppliers.copy()
+    view["domains_count"] = as_number(view["domains_count"])
+    view["p1_questions_count"] = as_number(view["p1_questions_count"])
+    view = view.sort_values(["p1_questions_count", "domains_count"], ascending=False).head(12)
+
+    return (
+        alt.Chart(view)
+        .mark_bar()
+        .encode(
+            y=alt.Y("supplier:N", sort="-x", title="Leverancier of dienst"),
+            x=alt.X("domains_count:Q", title="Aantal domeinen waar zichtbaar"),
+            color=alt.Color("highest_data_risk:N", title="Hoogste datarisico"),
+            tooltip=[
+                alt.Tooltip("supplier:N", title="Leverancier"),
+                alt.Tooltip("supplier_type:N", title="Type"),
+                alt.Tooltip("jurisdiction_groups:N", title="Jurisdictie-indicatie"),
+                alt.Tooltip("domains_count:Q", title="Domeinen"),
+                alt.Tooltip("p1_questions_count:Q", title="P1-vragen"),
+                alt.Tooltip("typical_data:N", title="Mogelijke data"),
+            ],
+        )
+        .properties(height=430)
+    )
+
+
+def chart_service_layers(layers: pd.DataFrame) -> Optional[alt.Chart]:
+    required = {"service_layer", "domains_count", "us_supplier_domains_count", "high_data_risk_domains_count"}
+    if layers.empty or not required.issubset(layers.columns):
+        return None
+
+    view = layers.copy()
+    view["domains_count"] = as_number(view["domains_count"])
+    view["us_supplier_domains_count"] = as_number(view["us_supplier_domains_count"])
+    view["high_data_risk_domains_count"] = as_number(view["high_data_risk_domains_count"])
+    view = view.sort_values("domains_count", ascending=False)
+
+    melted = view.melt(
+        id_vars=["service_layer", "top_suppliers"],
+        value_vars=["domains_count", "us_supplier_domains_count", "high_data_risk_domains_count"],
+        var_name="metric",
+        value_name="count",
+    )
+    labels = {
+        "domains_count": "Domeinen met indicator",
+        "us_supplier_domains_count": "Domeinen met US-indicatie",
+        "high_data_risk_domains_count": "Domeinen met hoog datarisico",
+    }
+    melted["metric_label"] = melted["metric"].map(labels)
+
+    return (
+        alt.Chart(melted)
+        .mark_bar()
+        .encode(
+            y=alt.Y("service_layer:N", title="Ketenlaag"),
+            x=alt.X("count:Q", title="Aantal domeinen"),
+            color=alt.Color("metric_label:N", title="Wat wordt geteld"),
+            tooltip=[
+                alt.Tooltip("service_layer:N", title="Ketenlaag"),
+                alt.Tooltip("metric_label:N", title="Meting"),
+                alt.Tooltip("count:Q", title="Aantal"),
+                alt.Tooltip("top_suppliers:N", title="Voorbeelden"),
+            ],
+        )
+        .properties(height=360)
+    )
+
+
 def show_missing_file_notice(name: str, path: Path) -> None:
     st.info(f"Bestand niet gevonden voor `{name}`: `{path}`. Draai eerst de pipeline of controleer het pad.")
 
@@ -246,6 +359,7 @@ if all(df.empty for df in data.values()):
 tabs = st.tabs(
     [
         "Overzicht",
+        "Ketenkaart",
         "Domeinen",
         "Leveranciers",
         "Datastromen",
@@ -346,10 +460,64 @@ with tabs[0]:
 
 
 # -----------------------------
-# Domains
+# Chain map
 # -----------------------------
 
 with tabs[1]:
+    st.subheader("Ketenkaart in één oogopslag")
+    st.write(
+        "Deze visualisaties zijn bedoeld voor lezers die snel willen begrijpen waar de belangrijkste vervolgvragen zitten. "
+        "Hoe verder een domein naar rechts en omhoog staat, hoe meer publieke signalen er zijn voor internationale leveranciers en mogelijk gevoelige datastromen."
+    )
+    st.info(
+        "De grafieken tonen prioriteit voor verificatie. Ze tonen geen bewijs van een overtreding of dataverwerking buiten Europa."
+    )
+
+    st.markdown("### Domeinen die uitleg vragen")
+    st.caption(
+        "Elke cirkel is een domein. Rechts betekent meer leveranciers met een niet-EU of US-indicatie. Hoger betekent meer leveranciers met hoog datarisico. Grotere cirkels hebben meer P1-verificatievragen."
+    )
+    domain_chart = chart_domain_priority(domain_priority)
+    if domain_chart is None:
+        show_missing_file_notice("domain_priority_summary", processed_dir / CSV_FILES["domain_priority_summary"])
+    else:
+        st.altair_chart(domain_chart, use_container_width=True)
+
+    left, right = st.columns(2)
+    with left:
+        st.markdown("### Meest zichtbare leveranciers")
+        st.caption(
+            "Deze grafiek toont leveranciers die in meerdere domeinen zichtbaar zijn. Dat maakt ze relevant voor transparantie, ook als er niets mis hoeft te zijn."
+        )
+        supplier_chart = chart_supplier_relevance(supplier_summary)
+        if supplier_chart is None:
+            show_missing_file_notice("supplier_summary", processed_dir / CSV_FILES["supplier_summary"])
+        else:
+            st.altair_chart(supplier_chart, use_container_width=True)
+
+    with right:
+        st.markdown("### Waar in de digitale keten zitten de signalen?")
+        st.caption(
+            "Deze grafiek laat zien of signalen vooral uit mail, scripts, hosting of andere ketenlagen komen."
+        )
+        layer_chart = chart_service_layers(service_layers)
+        if layer_chart is None:
+            show_missing_file_notice("service_layer_summary", processed_dir / CSV_FILES["service_layer_summary"])
+        else:
+            st.altair_chart(layer_chart, use_container_width=True)
+
+    st.markdown("### Hoe moet je dit lezen?")
+    st.write(
+        "Een hoog geprioriteerd domein hoeft niet onveilig te zijn. Het betekent dat er relatief veel publieke aanwijzingen zijn dat meerdere partijen betrokken kunnen zijn. "
+        "Juist dan is het belangrijk dat duidelijk wordt wie verantwoordelijk is, welke gegevens kunnen worden verwerkt, waar logs en back-ups staan en welke afspraken met leveranciers bestaan."
+    )
+
+
+# -----------------------------
+# Domains
+# -----------------------------
+
+with tabs[2]:
     st.subheader("Domeinen en hun rol in de publieke keten")
 
     if domain_priority.empty and domains_network.empty:
@@ -426,7 +594,7 @@ with tabs[1]:
 # Suppliers
 # -----------------------------
 
-with tabs[2]:
+with tabs[3]:
     st.subheader("Leveranciers en diensten")
     st.write(
         "Deze tabel laat zien welke leveranciers of diensten terugkomen in publieke technische gegevens, zoals mailrecords, scripts, hostinginformatie of CDN-indicaties."
@@ -484,7 +652,7 @@ with tabs[2]:
 # Dataflows
 # -----------------------------
 
-with tabs[3]:
+with tabs[4]:
     st.subheader("Datastroomindicatoren")
     st.write(
         "Een datastroomindicator is een publiek zichtbaar spoor van een leverancier of technische dienst. Voorbeelden zijn een mailrecord dat naar Microsoft 365 verwijst, een script van Google Tag Manager, een YouTube-insluiting, een CDN of een hostingprovider."
@@ -527,7 +695,7 @@ with tabs[3]:
 # Verification questions
 # -----------------------------
 
-with tabs[4]:
+with tabs[5]:
     st.subheader("Vragen voor verificatie")
     st.write(
         "Publieke bronnen laten niet alles zien. Ze vertellen bijvoorbeeld niet waar back-ups staan, welke supporttoegang leveranciers hebben, welke subverwerkers worden gebruikt of welke afspraken contractueel zijn vastgelegd."
@@ -577,7 +745,7 @@ with tabs[4]:
 # Raw data explorer
 # -----------------------------
 
-with tabs[5]:
+with tabs[6]:
     st.subheader("Onderliggende data")
     st.write(
         "Dit tabblad is bedoeld voor controle en hergebruik. Hier kun je de gebruikte tabellen bekijken en downloaden."
