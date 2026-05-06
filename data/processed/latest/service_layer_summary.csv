@@ -1,0 +1,4 @@
+service_layer,domains_count,suppliers_count,indicator_count,us_supplier_domains_count,high_data_risk_domains_count,top_suppliers
+mx_spf,17,6,154,16,17,"Microsoft 365 / Exchange Online, Zivver, TOPdesk, Flowmailer, Formulierenserver, Mailgun"
+frontend_scripts,19,7,97,16,14,"YouTube, Siteimprove, ReadSpeaker, Google APIs, Google Tag Manager, Google Analytics, Cookiebot / Usercentrics"
+network_hosting,11,2,50,7,11,"SIMgroep, Cloudflare"
