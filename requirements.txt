@@ -4,3 +4,4 @@ requests
 dnspython
 beautifulsoup4
 tldextract
+tabulate
