@@ -1,516 +1,572 @@
 """
-Streamlit prototype: Digitale footprint scanner voor gemeentelijke domeinen
+streamlit_app.py
+
+Dashboard voor de Digitale Ketenkaart.
 
 Doel:
-- Niet-invasief inventariseren van publieke domeinen
-- DNS, mailbeveiliging, HTTPS, headers, externe scripts en hostingindicaties ophalen
-- Resultaten exporteerbaar maken voor rapportage
+- Processed CSV's tonen uit data/processed/latest
+- Domeinen, leveranciers, datastromen, soevereiniteit en Woo-vragen analyseren
+- Blog- en rapportmateriaal zichtbaar maken
+
+Benodigde bestanden, indien aanwezig:
+- data/processed/latest/domains_enriched.csv
+- data/processed/latest/domains_network_enriched.csv
+- data/processed/latest/dataflow_matrix.csv
+- data/processed/latest/verification_questions.csv
+- data/processed/latest/supplier_summary.csv
+- data/processed/latest/domain_priority_summary.csv
+- data/processed/latest/service_layer_summary.csv
+- data/processed/latest/key_findings.csv
+- reports/key-findings.md
+- reports/blog-outline.md
+- reports/woo-vragenpakket.md
+- reports/methodology-note.md
 
 Installatie:
-    python -m venv .venv
-    source .venv/bin/activate  # Windows: .venv\Scripts\activate
-    pip install streamlit pandas requests dnspython beautifulsoup4 tldextract
+    pip install -r requirements.txt
 
 Starten:
-    streamlit run app.py
-
-Let op:
-- Dit is OSINT en basiscontrole, geen pentest
-- Gebruik alleen op domeinen waarvoor passieve of publieke controles passend zijn
-- Internet.nl batch API vereist aparte toegang, daarom is die hier als handmatige kolom opgenomen
+    streamlit run streamlit_app.py
 """
 
 from __future__ import annotations
 
-import socket
-import ssl
-import json
-import re
-from dataclasses import dataclass, asdict
-from datetime import datetime, timezone
-from typing import Dict, List, Optional, Tuple
+from pathlib import Path
+from typing import Dict, Iterable, List, Optional
 
 import pandas as pd
-import requests
 import streamlit as st
-import dns.resolver
-from bs4 import BeautifulSoup
-from urllib.parse import urljoin, urlparse
 
 
-DEFAULT_DOMAINS = """huizen.nl
-www.huizen.nl
-formulieren.huizen.nl
-maatschappelijkezaken.nl
-belastingenhbl.nl
-ris.gemeenteraadhuizen.nl
-sro.nl
-regiogv.nl
-gad.nl
-vrgooienvechtstreek.nl
-tomingroep.nl
-dekringloper.nl
-ofgv.nl
-archiefgooienvechtstreek.nl
-metropoolregioamsterdam.nl
-bngbank.nl
-randmeren.com
-gnr.nl
-visitgooivecht.nl
-huizenduurzaam.nl
-energieloketten.nl
-regionaalenergieloket.nl
-archiefweb.eu
-readspeaker.com
-"""
-
-SECURITY_HEADERS = [
-    "strict-transport-security",
-    "content-security-policy",
-    "x-content-type-options",
-    "x-frame-options",
-    "referrer-policy",
-    "permissions-policy",
-]
-
-TRACKER_HINTS = [
-    "google-analytics.com",
-    "googletagmanager.com",
-    "doubleclick.net",
-    "youtube.com",
-    "vimeo.com",
-    "facebook.net",
-    "hotjar.com",
-    "matomo",
-    "piwik",
-    "siteimprove",
-    "readspeaker",
-    "simanalytics",
-    "leaflet",
-]
+APP_TITLE = "Digitale Ketenkaart"
+DEFAULT_PROCESSED_DIR = Path("data/processed/latest")
+DEFAULT_REPORTS_DIR = Path("reports")
 
 
-@dataclass
-class ScanResult:
-    checked_at: str
-    domain: str
-    layer: str = "Onbekend"
-    relation: str = "Te verrijken"
-    url: str = ""
-    resolves: bool = False
-    ipv4: str = ""
-    ipv6: str = ""
-    cname: str = ""
-    nameservers: str = ""
-    mx: str = ""
-    spf: str = ""
-    dmarc: str = ""
-    mx_providers: str = ""
-    spf_includes: str = ""
-    spf_ip4s: str = ""
-    spf_ip6s: str = ""
-    spf_all_policy: str = ""
-    mail_provider_hint: str = ""
-    mail_sovereignty_hint: str = ""
-    https_ok: bool = False
-    http_status: str = ""
-    final_url: str = ""
-    hsts: bool = False
-    csp: bool = False
-    x_frame_options: bool = False
-    referrer_policy: bool = False
-    permissions_policy: bool = False
-    server_header: str = ""
-    powered_by: str = ""
-    tls_issuer: str = ""
-    tls_not_after: str = ""
-    security_txt: bool = False
-    cookies_count: int = 0
-    external_script_domains: str = ""
-    tracker_hints: str = ""
-    hosting_hint: str = ""
-    sovereignty_hint: str = "Onbekend"
-    personal_data_likelihood: str = "Te beoordelen"
-    risk_score: int = 0
-    risk_notes: str = ""
-    error: str = ""
+CSV_FILES = {
+    "domains_enriched": "domains_enriched.csv",
+    "domains_network_enriched": "domains_network_enriched.csv",
+    "dataflow_matrix": "dataflow_matrix.csv",
+    "verification_questions": "verification_questions.csv",
+    "supplier_summary": "supplier_summary.csv",
+    "domain_priority_summary": "domain_priority_summary.csv",
+    "service_layer_summary": "service_layer_summary.csv",
+    "key_findings": "key_findings.csv",
+    "summary": "summary.csv",
+    "sovereignty_summary": "sovereignty_summary.csv",
+}
+
+REPORT_FILES = {
+    "Kernbevindingen": "key-findings.md",
+    "Blog-outline": "blog-outline.md",
+    "Woo-vragenpakket": "woo-vragenpakket.md",
+    "Methodologie": "methodology-note.md",
+    "Laatste analyse": "latest-analysis.md",
+}
 
 
-def normalize_domain(value: str) -> str:
-    value = value.strip().lower()
-    value = re.sub(r"^https?://", "", value)
-    value = value.split("/")[0]
-    return value.strip()
+st.set_page_config(
+    page_title=APP_TITLE,
+    page_icon="🧭",
+    layout="wide",
+)
 
 
-def dns_query(domain: str, record_type: str) -> List[str]:
-    try:
-        answers = dns.resolver.resolve(domain, record_type, lifetime=5)
-        return [str(r).rstrip(".") for r in answers]
-    except Exception:
-        return []
+# -----------------------------
+# Helpers
+# -----------------------------
 
 
-def get_dns(domain: str) -> Dict[str, str]:
-    a = dns_query(domain, "A")
-    aaaa = dns_query(domain, "AAAA")
-    cname = dns_query(domain, "CNAME")
-    ns = dns_query(domain, "NS")
-    mx_raw = dns_query(domain, "MX")
-    txt = dns_query(domain, "TXT")
+def clean(value: object) -> str:
+    if value is None:
+        return ""
+    text = str(value).strip()
+    if text.lower() == "nan":
+        return ""
+    return text
 
-    spf_records = []
-    for item in txt:
-        clean = item.replace('" "', '').replace('"', '')
-        if clean.lower().startswith("v=spf1"):
-            spf_records.append(clean)
 
-    dmarc_records = dns_query(f"_dmarc.{domain}", "TXT")
-    dmarc_clean = []
-    for item in dmarc_records:
-        clean = item.replace('" "', '').replace('"', '')
-        if clean.lower().startswith("v=dmarc1"):
-            dmarc_clean.append(clean)
+@st.cache_data(show_spinner=False)
+def read_csv_cached(path: str) -> pd.DataFrame:
+    file_path = Path(path)
+    if not file_path.exists():
+        return pd.DataFrame()
+    return pd.read_csv(file_path)
 
+
+@st.cache_data(show_spinner=False)
+def read_text_cached(path: str) -> str:
+    file_path = Path(path)
+    if not file_path.exists():
+        return ""
+    return file_path.read_text(encoding="utf-8")
+
+
+def load_data(processed_dir: Path) -> Dict[str, pd.DataFrame]:
     return {
-        "ipv4": ", ".join(a),
-        "ipv6": ", ".join(aaaa),
-        "cname": ", ".join(cname),
-        "nameservers": ", ".join(ns),
-        "mx": ", ".join(mx_raw),
-        "spf": " | ".join(spf_records),
-        "dmarc": " | ".join(dmarc_clean),
+        key: read_csv_cached(str(processed_dir / filename))
+        for key, filename in CSV_FILES.items()
     }
 
 
-def get_tls_info(domain: str) -> Tuple[str, str]:
-    try:
-        context = ssl.create_default_context()
-        with socket.create_connection((domain, 443), timeout=6) as sock:
-            with context.wrap_socket(sock, server_hostname=domain) as ssock:
-                cert = ssock.getpeercert()
-        issuer_parts = []
-        for tup in cert.get("issuer", []):
-            for key, val in tup:
-                if key in {"organizationName", "commonName"}:
-                    issuer_parts.append(val)
-        return "; ".join(issuer_parts), cert.get("notAfter", "")
-    except Exception:
-        return "", ""
-
-
-def fetch_site(domain: str) -> Tuple[Optional[requests.Response], str]:
-    url = f"https://{domain}"
-    try:
-        response = requests.get(
-            url,
-            timeout=10,
-            allow_redirects=True,
-            headers={"User-Agent": "Mozilla/5.0 footprint-research/0.1"},
-        )
-        return response, ""
-    except Exception as exc:
-        return None, str(exc)
-
-
-def extract_external_scripts(response: requests.Response, domain: str) -> Tuple[str, str, int]:
-    content_type = response.headers.get("content-type", "")
-    cookies_count = len(response.cookies)
-    if "text/html" not in content_type.lower():
-        return "", "", cookies_count
-
-    soup = BeautifulSoup(response.text, "html.parser")
-    script_domains = set()
-
-    for tag in soup.find_all(["script", "iframe", "img", "link"]):
-        src = tag.get("src") or tag.get("href")
-        if not src:
-            continue
-        absolute = urljoin(response.url, src)
-        parsed = urlparse(absolute)
-        host = parsed.netloc.lower()
-        if host and not host.endswith(domain):
-            script_domains.add(host)
-
-    hints = sorted({hint for hint in TRACKER_HINTS if hint in " ".join(script_domains).lower() or hint in response.text.lower()})
-    return ", ".join(sorted(script_domains)), ", ".join(hints), cookies_count
-
-
-def check_security_txt(domain: str) -> bool:
-    candidates = [
-        f"https://{domain}/.well-known/security.txt",
-        f"https://{domain}/security.txt",
-    ]
-    for url in candidates:
-        try:
-            r = requests.get(url, timeout=5, allow_redirects=True)
-            if r.status_code == 200 and "contact" in r.text.lower():
-                return True
-        except Exception:
-            pass
-    return False
-
-
-def parse_spf_and_mx(dns_data: Dict[str, str]) -> Dict[str, str]:
-    """Extract supplier and routing intelligence from MX and SPF records."""
-    mx = dns_data.get("mx", "")
-    spf = dns_data.get("spf", "")
-    haystack = f"{mx} {spf}".lower()
-
-    tokens = spf.split()
-    includes = [t.replace("include:", "") for t in tokens if t.lower().startswith("include:")]
-    ip4s = [t.replace("ip4:", "") for t in tokens if t.lower().startswith("ip4:")]
-    ip6s = [t.replace("ip6:", "") for t in tokens if t.lower().startswith("ip6:")]
-    all_tokens = [t for t in tokens if t.lower() in {"+all", "~all", "-all", "?all"}]
-    all_policy = all_tokens[-1] if all_tokens else ""
-
-    provider_rules = {
-        "protection.outlook.com": ("Microsoft 365 / Exchange Online", "VS leverancier, tenantregio en contractuele waarborgen nodig"),
-        "mail.protection.outlook.com": ("Microsoft 365 / Exchange Online", "VS leverancier, tenantregio en contractuele waarborgen nodig"),
-        "zivver.com": ("Zivver", "Nederlandse leverancier, subverwerkers controleren"),
-        "topdesk.net": ("TOPdesk", "Nederlandse leverancier, hosting en subverwerkers controleren"),
-        "simgroephosting.nl": ("SIMgroep", "Nederlandse gemeentelijke webleverancier, hostingketen controleren"),
-        "flowmailer.net": ("Flowmailer", "Nederlandse leverancier, mailrouting en subverwerkers controleren"),
-        "formulierenserver.nl": ("Formulierenserver", "Nederlandse leverancier, persoonsgegevens waarschijnlijk, subverwerkers controleren"),
-        "pinkprivate.cloud": ("Pink Private Cloud", "Nederlandse of Europese cloudindicatie, contractueel verifieren"),
-        "nines.nl": ("Nines", "Nederlandse hostingindicatie, contractueel verifieren"),
-        "google.com": ("Google Workspace of Google maildiensten", "VS leverancier, regio en dataflow controleren"),
-        "amazonses.com": ("Amazon SES", "VS leverancier, regio controleren"),
-        "sendgrid.net": ("SendGrid", "VS leverancier, dataflow controleren"),
-        "mailgun.org": ("Mailgun", "VS leverancier, dataflow controleren"),
-    }
-
-    providers = []
-    sovereignty_notes = []
-    for needle, values in provider_rules.items():
-        provider, sovereignty = values
-        if needle in haystack:
-            providers.append(provider)
-            sovereignty_notes.append(sovereignty)
-
+def load_reports(reports_dir: Path) -> Dict[str, str]:
     return {
-        "mx_providers": ", ".join(sorted(set(providers))),
-        "spf_includes": ", ".join(sorted(set(includes))),
-        "spf_ip4s": ", ".join(sorted(set(ip4s))),
-        "spf_ip6s": ", ".join(sorted(set(ip6s))),
-        "spf_all_policy": all_policy,
-        "mail_provider_hint": ", ".join(sorted(set(providers))),
-        "mail_sovereignty_hint": " | ".join(sorted(set(sovereignty_notes))),
+        title: read_text_cached(str(reports_dir / filename))
+        for title, filename in REPORT_FILES.items()
     }
 
 
-def hosting_hint_from_dns(dns_data: Dict[str, str], response: Optional[requests.Response]) -> Tuple[str, str]:
-    haystack = " ".join([
-        dns_data.get("cname", ""),
-        dns_data.get("nameservers", ""),
-        response.headers.get("server", "") if response is not None else "",
-    ]).lower()
-
-    providers = {
-        "azure": ("Microsoft Azure", "VS leverancier, EU-regio mogelijk, tenantgegevens nodig"),
-        "cloudapp": ("Microsoft Azure", "VS leverancier, EU-regio mogelijk, tenantgegevens nodig"),
-        "trafficmanager": ("Microsoft Azure", "VS leverancier, EU-regio mogelijk, tenantgegevens nodig"),
-        "cloudflare": ("Cloudflare", "VS leverancier, wereldwijde edge, dataflow nader beoordelen"),
-        "amazonaws": ("Amazon Web Services", "VS leverancier, regio nader bepalen"),
-        "cloudfront": ("Amazon CloudFront", "VS leverancier, wereldwijde edge"),
-        "google": ("Google", "VS leverancier, regio en dataflow nader bepalen"),
-        "akamai": ("Akamai", "VS leverancier, wereldwijde edge"),
-        "fastly": ("Fastly", "VS leverancier, wereldwijde edge"),
-        "sim-cdn": ("SIMgroep CDN", "Leverancier nader beoordelen"),
-        "site4u": ("Site4U", "Nederlandse hostingindicatie"),
-        "transip": ("TransIP", "Nederlandse hostingindicatie"),
-        "hostnet": ("Hostnet", "Nederlandse hostingindicatie"),
-    }
-
-    for key, value in providers.items():
-        if key in haystack:
-            return value
-
-    return "Onbekend", "Onbekend"
+def has_columns(df: pd.DataFrame, columns: Iterable[str]) -> bool:
+    return all(c in df.columns for c in columns)
 
 
-def score_result(result: ScanResult) -> ScanResult:
-    score = 0
-    notes = []
-
-    if not result.https_ok:
-        score += 30
-        notes.append("HTTPS niet bereikbaar")
-    if not result.hsts:
-        score += 15
-        notes.append("HSTS ontbreekt")
-    if not result.csp:
-        score += 10
-        notes.append("CSP ontbreekt")
-    if not result.dmarc:
-        score += 15
-        notes.append("DMARC ontbreekt")
-    elif "p=none" in result.dmarc.lower():
-        score += 7
-        notes.append("DMARC staat op none")
-    if not result.spf:
-        score += 10
-        notes.append("SPF ontbreekt")
-    if not result.security_txt:
-        score += 5
-        notes.append("security.txt ontbreekt")
-    if result.tracker_hints:
-        score += 8
-        notes.append(f"Externe scripts of trackingindicaties: {result.tracker_hints}")
-    if result.sovereignty_hint.startswith("VS") or "wereldwijde" in result.sovereignty_hint.lower():
-        score += 12
-        notes.append(f"Soevereiniteitsvraag: {result.sovereignty_hint}")
-    if "VS leverancier" in result.mail_sovereignty_hint:
-        score += 10
-        notes.append(f"Mailsoevereiniteitsvraag: {result.mail_sovereignty_hint}")
-    if result.spf_all_policy == "~all":
-        score += 3
-        notes.append("SPF gebruikt softfail")
-    if result.personal_data_likelihood in {"Waarschijnlijk", "Zeker"}:
-        score += 10
-        notes.append("Waarschijnlijk persoonsgegevens")
-
-    result.risk_score = min(score, 100)
-    result.risk_notes = "; ".join(notes)
-    return result
+def metric_from_key_findings(key_findings: pd.DataFrame, finding: str, default: object = 0) -> object:
+    if key_findings.empty or not has_columns(key_findings, ["finding", "value"]):
+        return default
+    rows = key_findings[key_findings["finding"] == finding]
+    if rows.empty:
+        return default
+    return rows.iloc[0]["value"]
 
 
-def infer_personal_data(domain: str) -> str:
-    high = ["maatschappelijkezaken", "belastingen", "formulieren"]
-    medium = ["gad", "ofgv", "sro", "huizen"]
-    if any(x in domain for x in high):
-        return "Waarschijnlijk"
-    if any(x in domain for x in medium):
-        return "Mogelijk"
-    return "Te beoordelen"
-
-
-def infer_layer(domain: str) -> str:
-    if domain.endswith("huizen.nl"):
-        return "A, direct gemeentelijk"
-    if domain in {"maatschappelijkezaken.nl", "belastingenhbl.nl"}:
-        return "B, uitvoeringssite"
-    if domain in {"regiogv.nl", "gad.nl", "vrgooienvechtstreek.nl", "tomingroep.nl", "ofgv.nl", "archiefgooienvechtstreek.nl", "sro.nl", "gnr.nl", "randmeren.com"}:
-        return "C, verbonden partij of samenwerking"
-    return "D, leverancier of te verifieren"
-
-
-def scan_domain(domain: str) -> ScanResult:
-    domain = normalize_domain(domain)
-    checked_at = datetime.now(timezone.utc).isoformat()
-    result = ScanResult(
-        checked_at=checked_at,
-        domain=domain,
-        url=f"https://{domain}",
-        layer=infer_layer(domain),
-        personal_data_likelihood=infer_personal_data(domain),
+def dataframe_download(df: pd.DataFrame, label: str, filename: str) -> None:
+    if df.empty:
+        return
+    csv = df.to_csv(index=False).encode("utf-8")
+    st.download_button(
+        label=label,
+        data=csv,
+        file_name=filename,
+        mime="text/csv",
+        use_container_width=True,
     )
 
-    try:
-        dns_data = get_dns(domain)
-        for key, value in dns_data.items():
-            setattr(result, key, value)
 
-        mail_intel = parse_spf_and_mx(dns_data)
-        for key, value in mail_intel.items():
-            setattr(result, key, value)
-
-        result.resolves = bool(result.ipv4 or result.ipv6 or result.cname)
-
-        response, error = fetch_site(domain)
-        if response is None:
-            result.error = error
-        else:
-            result.https_ok = response.url.startswith("https://") and response.status_code < 500
-            result.http_status = str(response.status_code)
-            result.final_url = response.url
-
-            headers = {k.lower(): v for k, v in response.headers.items()}
-            result.hsts = "strict-transport-security" in headers
-            result.csp = "content-security-policy" in headers
-            result.x_frame_options = "x-frame-options" in headers
-            result.referrer_policy = "referrer-policy" in headers
-            result.permissions_policy = "permissions-policy" in headers
-            result.server_header = headers.get("server", "")
-            result.powered_by = headers.get("x-powered-by", "")
-
-            external, hints, cookies_count = extract_external_scripts(response, domain)
-            result.external_script_domains = external
-            result.tracker_hints = hints
-            result.cookies_count = cookies_count
-
-        result.tls_issuer, result.tls_not_after = get_tls_info(domain)
-        result.security_txt = check_security_txt(domain)
-        result.hosting_hint, result.sovereignty_hint = hosting_hint_from_dns(dns_data, response)
-        result = score_result(result)
-
-    except Exception as exc:
-        result.error = str(exc)
-
-    return result
+def filter_text(df: pd.DataFrame, query: str) -> pd.DataFrame:
+    if df.empty or not query.strip():
+        return df
+    q = query.lower().strip()
+    mask = df.astype(str).apply(lambda col: col.str.lower().str.contains(q, na=False, regex=False)).any(axis=1)
+    return df[mask]
 
 
-st.set_page_config(page_title="Digitale footprint scanner", layout="wide")
-st.title("Digitale footprint scanner voor gemeentelijke ketens")
-st.caption("Niet-invasieve OSINT voor domeinen, hostingindicaties, mailbeveiliging, headers en soevereiniteitsvragen.")
+def priority_badge_text(priority: str) -> str:
+    priority = clean(priority).upper()
+    if priority == "P1":
+        return "P1, hoogste prioriteit"
+    if priority == "P2":
+        return "P2, nader onderzoeken"
+    if priority == "P3":
+        return "P3, lagere prioriteit"
+    return priority or "Onbekend"
 
-with st.sidebar:
-    st.header("Instellingen")
-    st.write("Plak domeinen, een per regel. Gebruik geen agressieve scans.")
-    domains_text = st.text_area("Domeinen", value=DEFAULT_DOMAINS, height=360)
-    run = st.button("Start scan", type="primary")
-    st.divider()
-    st.markdown("**Interpretatie**")
-    st.markdown("Een hoge score betekent niet automatisch een kwetsbaarheid. Het betekent: prioriteit voor nader onderzoek.")
 
-if not run:
-    st.info("Klik op 'Start scan' om de publieke controles uit te voeren.")
+def sort_by_priority(df: pd.DataFrame) -> pd.DataFrame:
+    if df.empty or "priority" not in df.columns:
+        return df
+    order = {"P1": 1, "P2": 2, "P3": 3}
+    result = df.copy()
+    result["_priority_order"] = result["priority"].map(order).fillna(9)
+    sort_cols = ["_priority_order"]
+    for col in ["p1_questions_count", "us_supplier_count", "high_risk_supplier_count", "domains_count"]:
+        if col in result.columns:
+            sort_cols.append(col)
+    ascending = [True] + [False] * (len(sort_cols) - 1)
+    return result.sort_values(sort_cols, ascending=ascending).drop(columns=["_priority_order"])
+
+
+def show_missing_file_notice(name: str, path: Path) -> None:
+    st.info(f"Bestand niet gevonden voor `{name}`: `{path}`. Draai eerst de pipeline of controleer het pad.")
+
+
+def compact_columns(df: pd.DataFrame, preferred: List[str]) -> pd.DataFrame:
+    if df.empty:
+        return df
+    cols = [c for c in preferred if c in df.columns]
+    return df[cols] if cols else df
+
+
+# -----------------------------
+# Sidebar
+# -----------------------------
+
+st.sidebar.title("Digitale Ketenkaart")
+st.sidebar.caption("Dashboard bovenop de processed CSV's.")
+
+processed_dir_input = st.sidebar.text_input("Processed data map", value=str(DEFAULT_PROCESSED_DIR))
+reports_dir_input = st.sidebar.text_input("Reports map", value=str(DEFAULT_REPORTS_DIR))
+processed_dir = Path(processed_dir_input)
+reports_dir = Path(reports_dir_input)
+
+if st.sidebar.button("Cache verversen", use_container_width=True):
+    st.cache_data.clear()
+    st.rerun()
+
+st.sidebar.divider()
+st.sidebar.markdown("**Interpretatieregel**")
+st.sidebar.caption(
+    "Publieke indicatoren tonen afhankelijkheden, geen definitief bewijs van datalocatie of juridische doorgifte."
+)
+
+
+# -----------------------------
+# Load
+# -----------------------------
+
+data = load_data(processed_dir)
+reports = load_reports(reports_dir)
+
+key_findings = data["key_findings"]
+supplier_summary = data["supplier_summary"]
+domain_priority = data["domain_priority_summary"]
+service_layers = data["service_layer_summary"]
+dataflow = data["dataflow_matrix"]
+questions = data["verification_questions"]
+domains_network = data["domains_network_enriched"]
+domains_enriched = data["domains_enriched"]
+
+
+# -----------------------------
+# Header
+# -----------------------------
+
+st.title("Digitale Ketenkaart gemeente Huizen")
+st.caption(
+    "Analyse van publieke domeinen, leveranciersindicatoren, mailketens, frontend scripts, hosting en soevereiniteitsvragen."
+)
+
+if all(df.empty for df in data.values()):
+    st.warning("Er zijn nog geen processed CSV's gevonden. Controleer het pad of draai eerst de pipeline.")
     st.stop()
 
-raw_domains = [normalize_domain(x) for x in domains_text.splitlines() if normalize_domain(x)]
-domains = list(dict.fromkeys(raw_domains))
 
-progress = st.progress(0)
-results: List[ScanResult] = []
+# -----------------------------
+# Tabs
+# -----------------------------
 
-for idx, domain in enumerate(domains, start=1):
-    st.write(f"Scannen: {domain}")
-    results.append(scan_domain(domain))
-    progress.progress(idx / len(domains))
-
-rows = [asdict(r) for r in results]
-df = pd.DataFrame(rows)
-
-st.subheader("Resultaten")
-st.dataframe(df, use_container_width=True)
-
-csv = df.to_csv(index=False).encode("utf-8")
-st.download_button("Download CSV", data=csv, file_name="digitale_footprint_huizen.csv", mime="text/csv")
-
-json_data = json.dumps(rows, ensure_ascii=False, indent=2).encode("utf-8")
-st.download_button("Download JSON", data=json_data, file_name="digitale_footprint_huizen.json", mime="application/json")
-
-st.subheader("Prioriteiten")
-priority_cols = [
-    "domain",
-    "layer",
-    "personal_data_likelihood",
-    "risk_score",
-    "hosting_hint",
-    "sovereignty_hint",
-    "mail_provider_hint",
-    "mail_sovereignty_hint",
-    "risk_notes",
-]
-st.dataframe(df[priority_cols].sort_values("risk_score", ascending=False), use_container_width=True)
-
-st.subheader("Samenvatting")
-col1, col2, col3, col4 = st.columns(4)
-col1.metric("Domeinen", len(df))
-col2.metric("HTTPS ok", int(df["https_ok"].sum()))
-col3.metric("HSTS", int(df["hsts"].sum()))
-col4.metric("DMARC", int(df["dmarc"].astype(bool).sum()))
-
-st.warning(
-    "Hostingland en jurisdictie zijn indicaties. Voor zekerheid zijn contracten, subverwerkerslijsten, tenantinstellingen en gemeentelijke documentatie nodig."
+tabs = st.tabs(
+    [
+        "Overzicht",
+        "Domeinen",
+        "Leveranciers",
+        "Datastromen",
+        "Verificatievragen",
+        "Rapport & blog",
+        "Data",
+    ]
 )
+
+
+# -----------------------------
+# Overview
+# -----------------------------
+
+with tabs[0]:
+    st.subheader("Overzicht")
+
+    col1, col2, col3, col4 = st.columns(4)
+    col1.metric("Onderzochte domeinen", metric_from_key_findings(key_findings, "onderzochte_domeinen", len(domains_network)))
+    col2.metric("Datastroomindicatoren", metric_from_key_findings(key_findings, "datastroom_indicatoren", len(dataflow)))
+    col3.metric("Unieke leveranciers", metric_from_key_findings(key_findings, "unieke_leveranciers", supplier_summary.get("supplier", pd.Series(dtype=str)).nunique() if not supplier_summary.empty else 0))
+    col4.metric("P1-vragen", metric_from_key_findings(key_findings, "p1_verificatievragen", int((questions.get("priority", pd.Series(dtype=str)) == "P1").sum()) if not questions.empty else 0))
+
+    st.markdown("### Kernboodschap")
+    st.write(
+        "Deze analyse kijkt verder dan webhosting. De digitale keten bestaat ook uit mail, formulieren, scripts, CDN's, analytics, SaaS en cloudplatformen. "
+        "De scan laat publieke indicatoren zien, maar geen definitief bewijs van datalocatie, logginglocaties, back-ups, supporttoegang of formele subverwerkers."
+    )
+
+    left, right = st.columns([1.2, 1])
+    with left:
+        st.markdown("### Service layers")
+        if service_layers.empty:
+            show_missing_file_notice("service_layer_summary", processed_dir / CSV_FILES["service_layer_summary"])
+        else:
+            view = compact_columns(
+                service_layers,
+                [
+                    "service_layer",
+                    "domains_count",
+                    "suppliers_count",
+                    "indicator_count",
+                    "us_supplier_domains_count",
+                    "high_data_risk_domains_count",
+                    "top_suppliers",
+                ],
+            )
+            st.dataframe(view, use_container_width=True, hide_index=True)
+
+    with right:
+        st.markdown("### Top leveranciers")
+        if supplier_summary.empty:
+            show_missing_file_notice("supplier_summary", processed_dir / CSV_FILES["supplier_summary"])
+        else:
+            view = compact_columns(
+                supplier_summary,
+                [
+                    "supplier",
+                    "domains_count",
+                    "highest_data_risk",
+                    "p1_questions_count",
+                ],
+            ).head(10)
+            st.dataframe(view, use_container_width=True, hide_index=True)
+
+    st.markdown("### Domeinen met hoogste prioriteit")
+    if domain_priority.empty:
+        show_missing_file_notice("domain_priority_summary", processed_dir / CSV_FILES["domain_priority_summary"])
+    else:
+        view = compact_columns(
+            sort_by_priority(domain_priority),
+            [
+                "domain",
+                "priority",
+                "personal_data_likelihood",
+                "us_supplier_count",
+                "high_risk_supplier_count",
+                "p1_questions_count",
+                "priority_reason",
+            ],
+        ).head(12)
+        st.dataframe(view, use_container_width=True, hide_index=True)
+
+
+# -----------------------------
+# Domains
+# -----------------------------
+
+with tabs[1]:
+    st.subheader("Domeinen")
+
+    if domain_priority.empty and domains_network.empty:
+        show_missing_file_notice("domain_priority_summary", processed_dir / CSV_FILES["domain_priority_summary"])
+    else:
+        source = domain_priority if not domain_priority.empty else domains_network
+
+        c1, c2, c3 = st.columns([2, 1, 1])
+        query = c1.text_input("Zoek in domeinen", key="domain_query")
+        priority_filter = c2.multiselect(
+            "Prioriteit",
+            options=sorted(source["priority"].dropna().unique().tolist()) if "priority" in source.columns else [],
+            default=sorted(source["priority"].dropna().unique().tolist()) if "priority" in source.columns else [],
+        )
+        only_us = c3.checkbox("Alleen US-indicatie", value=False)
+
+        filtered = filter_text(source, query)
+        if priority_filter and "priority" in filtered.columns:
+            filtered = filtered[filtered["priority"].isin(priority_filter)]
+        if only_us and "us_supplier_count" in filtered.columns:
+            filtered = filtered[filtered["us_supplier_count"].fillna(0) > 0]
+
+        filtered = sort_by_priority(filtered)
+        st.dataframe(filtered, use_container_width=True, hide_index=True)
+        dataframe_download(filtered, "Download domeinenfilter", "domain_priority_filtered.csv")
+
+        st.markdown("### Detail per domein")
+        domain_options = filtered["domain"].dropna().astype(str).unique().tolist() if "domain" in filtered.columns else []
+        selected_domain = st.selectbox("Kies domein", options=domain_options, index=0 if domain_options else None)
+
+        if selected_domain:
+            drow = filtered[filtered["domain"] == selected_domain]
+            if not drow.empty:
+                row = drow.iloc[0]
+                c1, c2, c3, c4 = st.columns(4)
+                c1.metric("Prioriteit", clean(row.get("priority", "Onbekend")))
+                c2.metric("US leveranciers", clean(row.get("us_supplier_count", 0)))
+                c3.metric("Hoog risico leveranciers", clean(row.get("high_risk_supplier_count", 0)))
+                c4.metric("P1 vragen", clean(row.get("p1_questions_count", 0)))
+                st.write(clean(row.get("priority_reason", "")))
+
+            if not dataflow.empty and "domain" in dataflow.columns:
+                st.markdown("#### Datastroomindicatoren")
+                st.dataframe(dataflow[dataflow["domain"] == selected_domain], use_container_width=True, hide_index=True)
+
+            if not questions.empty and "domain" in questions.columns:
+                st.markdown("#### Verificatievragen")
+                st.dataframe(sort_by_priority(questions[questions["domain"] == selected_domain]), use_container_width=True, hide_index=True)
+
+
+# -----------------------------
+# Suppliers
+# -----------------------------
+
+with tabs[2]:
+    st.subheader("Leveranciers")
+
+    if supplier_summary.empty:
+        show_missing_file_notice("supplier_summary", processed_dir / CSV_FILES["supplier_summary"])
+    else:
+        c1, c2, c3 = st.columns([2, 1, 1])
+        query = c1.text_input("Zoek in leveranciers", key="supplier_query")
+        only_us = c2.checkbox("Alleen US-leveranciersindicatie", value=False)
+        only_p1 = c3.checkbox("Alleen met P1-vragen", value=False)
+
+        filtered = filter_text(supplier_summary, query)
+        if only_us and "us_supplier_indicator" in filtered.columns:
+            filtered = filtered[filtered["us_supplier_indicator"].astype(str).str.lower().isin(["true", "1", "ja"])]
+        if only_p1 and "p1_questions_count" in filtered.columns:
+            filtered = filtered[filtered["p1_questions_count"].fillna(0) > 0]
+
+        st.dataframe(filtered, use_container_width=True, hide_index=True)
+        dataframe_download(filtered, "Download leveranciersfilter", "supplier_summary_filtered.csv")
+
+        st.markdown("### Detail per leverancier")
+        supplier_options = filtered["supplier"].dropna().astype(str).unique().tolist() if "supplier" in filtered.columns else []
+        selected_supplier = st.selectbox("Kies leverancier", options=supplier_options, index=0 if supplier_options else None)
+
+        if selected_supplier:
+            detail = filtered[filtered["supplier"] == selected_supplier]
+            if not detail.empty:
+                row = detail.iloc[0]
+                c1, c2, c3, c4 = st.columns(4)
+                c1.metric("Domeinen", clean(row.get("domains_count", 0)))
+                c2.metric("Indicatoren", clean(row.get("indicator_count", 0)))
+                c3.metric("Hoogste datarisico", clean(row.get("highest_data_risk", "")))
+                c4.metric("P1-vragen", clean(row.get("p1_questions_count", 0)))
+                st.write("**Type:**", clean(row.get("supplier_type", "")))
+                st.write("**Jurisdictie-indicatie:**", clean(row.get("jurisdiction_groups", "")))
+                st.write("**Mogelijke datacategorieën:**", clean(row.get("typical_data", "")))
+                st.write("**Voorbeelddomeinen:**", clean(row.get("example_domains", "")))
+
+            if not dataflow.empty and "supplier" in dataflow.columns:
+                st.markdown("#### Datastroomindicatoren")
+                st.dataframe(dataflow[dataflow["supplier"] == selected_supplier], use_container_width=True, hide_index=True)
+
+            if not questions.empty and "supplier" in questions.columns:
+                st.markdown("#### Verificatievragen")
+                st.dataframe(sort_by_priority(questions[questions["supplier"] == selected_supplier]), use_container_width=True, hide_index=True)
+
+
+# -----------------------------
+# Dataflows
+# -----------------------------
+
+with tabs[3]:
+    st.subheader("Datastromen")
+
+    if dataflow.empty:
+        show_missing_file_notice("dataflow_matrix", processed_dir / CSV_FILES["dataflow_matrix"])
+    else:
+        c1, c2, c3 = st.columns([2, 1, 1])
+        query = c1.text_input("Zoek in datastromen", key="dataflow_query")
+        service_layers_options = sorted(dataflow["service_layer"].dropna().unique().tolist()) if "service_layer" in dataflow.columns else []
+        selected_layers = c2.multiselect("Service layer", service_layers_options, default=service_layers_options)
+        high_only = c3.checkbox("Alleen high risico", value=False)
+
+        filtered = filter_text(dataflow, query)
+        if selected_layers and "service_layer" in filtered.columns:
+            filtered = filtered[filtered["service_layer"].isin(selected_layers)]
+        if high_only and "data_risk" in filtered.columns:
+            filtered = filtered[filtered["data_risk"].astype(str).str.contains("high", case=False, na=False)]
+
+        st.dataframe(filtered, use_container_width=True, hide_index=True)
+        dataframe_download(filtered, "Download datastromenfilter", "dataflow_matrix_filtered.csv")
+
+        st.markdown("### Kruistabel")
+        if has_columns(filtered, ["service_layer", "supplier", "domain"]):
+            pivot = (
+                filtered.groupby(["service_layer", "supplier"])["domain"]
+                .nunique()
+                .reset_index(name="domains_count")
+                .sort_values("domains_count", ascending=False)
+            )
+            st.dataframe(pivot, use_container_width=True, hide_index=True)
+
+
+# -----------------------------
+# Verification questions
+# -----------------------------
+
+with tabs[4]:
+    st.subheader("Verificatievragen")
+
+    if questions.empty:
+        show_missing_file_notice("verification_questions", processed_dir / CSV_FILES["verification_questions"])
+    else:
+        c1, c2, c3 = st.columns([2, 1, 1])
+        query = c1.text_input("Zoek in vragen", key="question_query")
+        priority_options = sorted(questions["priority"].dropna().unique().tolist()) if "priority" in questions.columns else []
+        selected_priorities = c2.multiselect("Prioriteit", priority_options, default=priority_options)
+        supplier_options = sorted(questions["supplier"].dropna().unique().tolist()) if "supplier" in questions.columns else []
+        selected_supplier = c3.selectbox("Leverancier", options=["Alle"] + supplier_options)
+
+        filtered = filter_text(questions, query)
+        if selected_priorities and "priority" in filtered.columns:
+            filtered = filtered[filtered["priority"].isin(selected_priorities)]
+        if selected_supplier != "Alle" and "supplier" in filtered.columns:
+            filtered = filtered[filtered["supplier"] == selected_supplier]
+
+        filtered = sort_by_priority(filtered)
+        st.dataframe(filtered, use_container_width=True, hide_index=True)
+        dataframe_download(filtered, "Download verificatievragen", "verification_questions_filtered.csv")
+
+        st.markdown("### Woo-selectie")
+        p1 = filtered[filtered["priority"] == "P1"] if "priority" in filtered.columns else pd.DataFrame()
+        if not p1.empty:
+            st.write("Deze P1-vragen zijn geschikt als eerste Woo-bijlage of verificatielijst.")
+            for _, row in p1.head(20).iterrows():
+                st.markdown(
+                    f"- **{clean(row.get('domain', ''))}**, {clean(row.get('supplier', ''))}: {clean(row.get('question', ''))}"
+                )
+        else:
+            st.info("Geen P1-vragen in de huidige selectie.")
+
+
+# -----------------------------
+# Reports and blog
+# -----------------------------
+
+with tabs[5]:
+    st.subheader("Rapport & blog")
+
+    available_reports = {title: text for title, text in reports.items() if text}
+    if not available_reports:
+        st.info("Geen Markdown-rapporten gevonden in de reports-map. Draai `generate_blog_pack.py` eerst.")
+    else:
+        report_title = st.selectbox("Kies document", options=list(available_reports.keys()))
+        st.markdown(available_reports[report_title])
+
+        report_filename = REPORT_FILES.get(report_title, "report.md")
+        st.download_button(
+            label=f"Download {report_filename}",
+            data=available_reports[report_title].encode("utf-8"),
+            file_name=report_filename,
+            mime="text/markdown",
+            use_container_width=True,
+        )
+
+    st.markdown("### Publicatieadvies")
+    st.write(
+        "Gebruik de blog als publieke probleemschets en het Woo-verzoek als verificatie-instrument. "
+        "Publiceer geen harde claims over datalocatie of AVG-overtredingen zonder aanvullende bronnen."
+    )
+
+
+# -----------------------------
+# Raw data explorer
+# -----------------------------
+
+with tabs[6]:
+    st.subheader("Data")
+
+    dataset_names = [key for key, df in data.items() if not df.empty]
+    if not dataset_names:
+        st.info("Geen datasets gevonden.")
+    else:
+        selected_dataset = st.selectbox("Dataset", options=dataset_names)
+        df = data[selected_dataset]
+        query = st.text_input("Zoek in dataset", key="raw_data_query")
+        filtered = filter_text(df, query)
+        st.caption(f"{len(filtered)} van {len(df)} rijen")
+        st.dataframe(filtered, use_container_width=True, hide_index=True)
+        dataframe_download(filtered, f"Download {selected_dataset}", f"{selected_dataset}.csv")
+
+    st.markdown("### Verwachte bestanden")
+    expected = []
+    for key, filename in CSV_FILES.items():
+        path = processed_dir / filename
+        expected.append({"dataset": key, "path": str(path), "exists": path.exists()})
+    for title, filename in REPORT_FILES.items():
+        path = reports_dir / filename
+        expected.append({"dataset": title, "path": str(path), "exists": path.exists()})
+    st.dataframe(pd.DataFrame(expected), use_container_width=True, hide_index=True)
