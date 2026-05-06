@@ -45,6 +45,12 @@ jobs:
             --catalog data/lookups/supplier_catalog.csv \
             --output-dir data/processed/latest
 
+      - name: Enrich network data
+        run: |
+          python scripts/enrich_network.py \
+            --input data/processed/latest/domains_enriched.csv \
+            --output data/processed/latest/domains_network_enriched.csv
+
       - name: Generate markdown report
         run: |
           python scripts/generate_markdown_report.py \
