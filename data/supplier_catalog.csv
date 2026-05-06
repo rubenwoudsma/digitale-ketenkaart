@@ -1,0 +1,21 @@
+needle,supplier_name,category,jurisdiction_hint,verification_needed
+protection.outlook.com,Microsoft 365 / Exchange Online,mail/cloud,VS leverancier met mogelijke EU-regio,ja
+mail.protection.outlook.com,Microsoft 365 / Exchange Online,mail/cloud,VS leverancier met mogelijke EU-regio,ja
+zivver.com,Zivver,secure mail,Nederlandse leverancier,ja
+topdesk.net,TOPdesk,servicedesk/SaaS,Nederlandse leverancier,ja
+simgroephosting.nl,SIMgroep,gemeentelijke webhosting,Nederlandse leverancier,ja
+sim-cdn.nl,SIMgroep CDN,cdn/webhosting,Nederlandse leverancier,ja
+flowmailer.net,Flowmailer,transactionele mail,Nederlandse leverancier,ja
+formulierenserver.nl,Formulierenserver,formulieren,Nederlandse leverancier met persoonsgegevensrisico,ja
+pinkprivate.cloud,Pink Private Cloud,cloud/hosting,Nederlandse of Europese cloudindicatie,ja
+nines.nl,Nines,hosting,Nederlandse hostingindicatie,ja
+google.com,Google Workspace of Google diensten,mail/cloud,VS leverancier,ja
+googleapis.com,Google APIs,third-party script,VS leverancier,ja
+gstatic.com,Google Static,third-party script,VS leverancier,ja
+googletagmanager.com,Google Tag Manager,analytics/tracking,VS leverancier,ja
+google-analytics.com,Google Analytics,analytics/tracking,VS leverancier,ja
+youtube.com,YouTube,video embed,VS leverancier,ja
+cloudflare,Cloudflare,cdn/waf,VS leverancier met wereldwijde edge,ja
+cloudfront,Amazon CloudFront,cdn,VS leverancier met wereldwijde edge,ja
+amazonaws.com,Amazon Web Services,cloud,VS leverancier,ja
+azure,Microsoft Azure,cloud,VS leverancier met mogelijke EU-regio,ja
