@@ -1,0 +1,11 @@
+metric,value
+domains_total,24
+https_ok,24
+hsts_present,17
+csp_present,13
+security_txt_present,5
+dmarc_effective,14
+p1_items,12
+p2_items,11
+unique_supplier_indicators,172
+unknown_hosting_hint,17

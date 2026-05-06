@@ -1,0 +1,314 @@
+domain,source_type,indicator,supplier_name,category,jurisdiction_hint,verification_needed
+huizen.nl,MX,10 huizen-nl.mail.protection.outlook.com,Microsoft 365 / Exchange Online,mail/cloud,VS leverancier met mogelijke EU-regio,ja
+huizen.nl,SPF include,_spf.formulierenserver.nl,Formulierenserver,formulieren,Nederlandse leverancier met persoonsgegevensrisico,ja
+huizen.nl,SPF include,_spf.sc.nines.nl,Nines,hosting,Nederlandse hostingindicatie,ja
+huizen.nl,SPF include,_spf.zivver.com,Zivver,secure mail,Nederlandse leverancier,ja
+huizen.nl,SPF include,spf.flowmailer.net,Flowmailer,transactionele mail,Nederlandse leverancier,ja
+huizen.nl,SPF include,spf.pinkprivate.cloud,Pink Private Cloud,cloud/hosting,Nederlandse of Europese cloudindicatie,ja
+huizen.nl,SPF include,spf.protection.outlook.com,Microsoft 365 / Exchange Online,mail/cloud,VS leverancier met mogelijke EU-regio,ja
+huizen.nl,SPF include,spf.simgroephosting.nl,SIMgroep,gemeentelijke webhosting,Nederlandse leverancier,ja
+huizen.nl,SPF include,spf.topdesk.net,TOPdesk,servicedesk/SaaS,Nederlandse leverancier,ja
+huizen.nl,SPF ip4,185.42.57.140,Onbekend,onbekend,Onbekend,ja
+huizen.nl,SPF ip4,193.173.63.210/28,Onbekend,onbekend,Onbekend,ja
+huizen.nl,SPF ip4,194.13.163.7,Onbekend,onbekend,Onbekend,ja
+huizen.nl,SPF ip4,194.53.14.66,Onbekend,onbekend,Onbekend,ja
+huizen.nl,SPF ip4,195.72.120.109,Onbekend,onbekend,Onbekend,ja
+huizen.nl,SPF ip4,195.72.120.110,Onbekend,onbekend,Onbekend,ja
+huizen.nl,SPF ip4,195.72.120.192,Onbekend,onbekend,Onbekend,ja
+huizen.nl,SPF ip4,20.229.91.213,Onbekend,onbekend,Onbekend,ja
+huizen.nl,SPF ip4,213.125.7.98/29,Onbekend,onbekend,Onbekend,ja
+huizen.nl,SPF ip4,45.80.232.21,Onbekend,onbekend,Onbekend,ja
+huizen.nl,SPF ip6,2001:678:56c:1:195:72:120:192,Onbekend,onbekend,Onbekend,ja
+huizen.nl,External script,cuatro.sim-cdn.nl,SIMgroep CDN,cdn/webhosting,Nederlandse leverancier,ja
+huizen.nl,External script,fonts.bunny.net,Onbekend,onbekend,Onbekend,ja
+huizen.nl,External script,huizen.logging.simanalytics.nl,Onbekend,onbekend,Onbekend,ja
+huizen.nl,Tracker hint,leaflet,Onbekend,onbekend,Onbekend,ja
+huizen.nl,Tracker hint,matomo,Onbekend,onbekend,Onbekend,ja
+huizen.nl,Tracker hint,piwik,Onbekend,onbekend,Onbekend,ja
+huizen.nl,Tracker hint,readspeaker,Onbekend,onbekend,Onbekend,ja
+huizen.nl,Tracker hint,simanalytics,Onbekend,onbekend,Onbekend,ja
+huizen.nl,Tracker hint,siteimprove,Onbekend,onbekend,Onbekend,ja
+huizen.nl,Tracker hint,youtube.com,YouTube,video embed,VS leverancier,ja
+huizen.nl,Hosting hint,Onbekend,Onbekend,onbekend,Onbekend,ja
+www.huizen.nl,External script,cuatro.sim-cdn.nl,SIMgroep CDN,cdn/webhosting,Nederlandse leverancier,ja
+www.huizen.nl,External script,fonts.bunny.net,Onbekend,onbekend,Onbekend,ja
+www.huizen.nl,External script,huizen.logging.simanalytics.nl,Onbekend,onbekend,Onbekend,ja
+www.huizen.nl,Tracker hint,leaflet,Onbekend,onbekend,Onbekend,ja
+www.huizen.nl,Tracker hint,matomo,Onbekend,onbekend,Onbekend,ja
+www.huizen.nl,Tracker hint,piwik,Onbekend,onbekend,Onbekend,ja
+www.huizen.nl,Tracker hint,readspeaker,Onbekend,onbekend,Onbekend,ja
+www.huizen.nl,Tracker hint,simanalytics,Onbekend,onbekend,Onbekend,ja
+www.huizen.nl,Tracker hint,siteimprove,Onbekend,onbekend,Onbekend,ja
+www.huizen.nl,Tracker hint,youtube.com,YouTube,video embed,VS leverancier,ja
+www.huizen.nl,Hosting hint,Onbekend,Onbekend,onbekend,Onbekend,ja
+formulieren.huizen.nl,External script,fonts.googleapis.com,Google APIs,third-party script,VS leverancier,ja
+formulieren.huizen.nl,External script,fonts.gstatic.com,Google Static,third-party script,VS leverancier,ja
+formulieren.huizen.nl,Hosting hint,Onbekend,Onbekend,onbekend,Onbekend,ja
+maatschappelijkezaken.nl,MX,0 maatschappelijkezaken-nl.mail.protection.outlook.com,Microsoft 365 / Exchange Online,mail/cloud,VS leverancier met mogelijke EU-regio,ja
+maatschappelijkezaken.nl,SPF include,_spf.hostnet.nl,Onbekend,onbekend,Onbekend,ja
+maatschappelijkezaken.nl,SPF include,spf.protection.outlook.com,Microsoft 365 / Exchange Online,mail/cloud,VS leverancier met mogelijke EU-regio,ja
+maatschappelijkezaken.nl,External script,cuatro.sim-cdn.nl,SIMgroep CDN,cdn/webhosting,Nederlandse leverancier,ja
+maatschappelijkezaken.nl,External script,fonts.bunny.net,Onbekend,onbekend,Onbekend,ja
+maatschappelijkezaken.nl,External script,huizen.logging.simanalytics.nl,Onbekend,onbekend,Onbekend,ja
+maatschappelijkezaken.nl,Tracker hint,leaflet,Onbekend,onbekend,Onbekend,ja
+maatschappelijkezaken.nl,Tracker hint,matomo,Onbekend,onbekend,Onbekend,ja
+maatschappelijkezaken.nl,Tracker hint,piwik,Onbekend,onbekend,Onbekend,ja
+maatschappelijkezaken.nl,Tracker hint,readspeaker,Onbekend,onbekend,Onbekend,ja
+maatschappelijkezaken.nl,Tracker hint,simanalytics,Onbekend,onbekend,Onbekend,ja
+maatschappelijkezaken.nl,Tracker hint,siteimprove,Onbekend,onbekend,Onbekend,ja
+maatschappelijkezaken.nl,Hosting hint,Hostnet,Onbekend,onbekend,Onbekend,ja
+belastingenhbl.nl,MX,0 belastingenhbl-nl.mail.protection.outlook.com,Microsoft 365 / Exchange Online,mail/cloud,VS leverancier met mogelijke EU-regio,ja
+belastingenhbl.nl,SPF include,huizen.nl,Onbekend,onbekend,Onbekend,ja
+belastingenhbl.nl,External script,cuatro.sim-cdn.nl,SIMgroep CDN,cdn/webhosting,Nederlandse leverancier,ja
+belastingenhbl.nl,External script,fonts.bunny.net,Onbekend,onbekend,Onbekend,ja
+belastingenhbl.nl,External script,huizen.logging.simanalytics.nl,Onbekend,onbekend,Onbekend,ja
+belastingenhbl.nl,Tracker hint,leaflet,Onbekend,onbekend,Onbekend,ja
+belastingenhbl.nl,Tracker hint,matomo,Onbekend,onbekend,Onbekend,ja
+belastingenhbl.nl,Tracker hint,piwik,Onbekend,onbekend,Onbekend,ja
+belastingenhbl.nl,Tracker hint,readspeaker,Onbekend,onbekend,Onbekend,ja
+belastingenhbl.nl,Tracker hint,simanalytics,Onbekend,onbekend,Onbekend,ja
+belastingenhbl.nl,Tracker hint,siteimprove,Onbekend,onbekend,Onbekend,ja
+belastingenhbl.nl,Hosting hint,Hostnet,Onbekend,onbekend,Onbekend,ja
+ris.gemeenteraadhuizen.nl,External script,cdn1.readspeaker.com,Onbekend,onbekend,Onbekend,ja
+ris.gemeenteraadhuizen.nl,External script,static.gemeenteoplossingen.nl,Onbekend,onbekend,Onbekend,ja
+ris.gemeenteraadhuizen.nl,Tracker hint,readspeaker,Onbekend,onbekend,Onbekend,ja
+ris.gemeenteraadhuizen.nl,Tracker hint,youtube.com,YouTube,video embed,VS leverancier,ja
+ris.gemeenteraadhuizen.nl,Hosting hint,Onbekend,Onbekend,onbekend,Onbekend,ja
+sro.nl,MX,30 d316232.a.ess.de.barracudanetworks.com,Onbekend,onbekend,Onbekend,ja
+sro.nl,MX,40 d316232.b.ess.de.barracudanetworks.com,Onbekend,onbekend,Onbekend,ja
+sro.nl,SPF include,_spf.axxerion.com,Onbekend,onbekend,Onbekend,ja
+sro.nl,SPF include,smtp.dataim.nl,Onbekend,onbekend,Onbekend,ja
+sro.nl,SPF include,spf.EU.exclaimer.net,Onbekend,onbekend,Onbekend,ja
+sro.nl,SPF include,spf.afas.online,Onbekend,onbekend,Onbekend,ja
+sro.nl,SPF include,spf.ess.de.barracudanetworks.com,Onbekend,onbekend,Onbekend,ja
+sro.nl,SPF include,spf.mailjet.com,Onbekend,onbekend,Onbekend,ja
+sro.nl,SPF include,spf.protection.outlook.com,Microsoft 365 / Exchange Online,mail/cloud,VS leverancier met mogelijke EU-regio,ja
+sro.nl,SPF include,spf1.serasoft.com,Onbekend,onbekend,Onbekend,ja
+sro.nl,SPF include,windows.ppibv.nl,Onbekend,onbekend,Onbekend,ja
+sro.nl,SPF ip4,212.57.57.242,Onbekend,onbekend,Onbekend,ja
+sro.nl,SPF ip4,212.57.57.70,Onbekend,onbekend,Onbekend,ja
+sro.nl,SPF ip4,45.139.160.33,Onbekend,onbekend,Onbekend,ja
+sro.nl,SPF ip6,2a02:690:4000::242,Onbekend,onbekend,Onbekend,ja
+sro.nl,External script,ajax.googleapis.com,Google APIs,third-party script,VS leverancier,ja
+sro.nl,External script,apis.google.com,Google Workspace of Google diensten,mail/cloud,VS leverancier,ja
+sro.nl,External script,b1307353.smushcdn.com,Onbekend,onbekend,Onbekend,ja
+sro.nl,External script,demo.recras.nl,Onbekend,onbekend,Onbekend,ja
+sro.nl,External script,fonts.googleapis.com,Google APIs,third-party script,VS leverancier,ja
+sro.nl,External script,fonts.gstatic.com,Google Static,third-party script,VS leverancier,ja
+sro.nl,External script,gmpg.org,Onbekend,onbekend,Onbekend,ja
+sro.nl,External script,google-analytics.com,Google Analytics,analytics/tracking,VS leverancier,ja
+sro.nl,External script,m15.mailplus.nl,Onbekend,onbekend,Onbekend,ja
+sro.nl,External script,maps.googleapis.com,Google APIs,third-party script,VS leverancier,ja
+sro.nl,External script,s.gravatar.com,Onbekend,onbekend,Onbekend,ja
+sro.nl,External script,ssl.google-analytics.com,Google Analytics,analytics/tracking,VS leverancier,ja
+sro.nl,External script,static.getclicky.com,Onbekend,onbekend,Onbekend,ja
+sro.nl,External script,static.mailplus.nl,Onbekend,onbekend,Onbekend,ja
+sro.nl,External script,www.google-analytics.com,Google Analytics,analytics/tracking,VS leverancier,ja
+sro.nl,External script,www.gstatic.com,Google Static,third-party script,VS leverancier,ja
+sro.nl,External script,youtube.com,YouTube,video embed,VS leverancier,ja
+sro.nl,Tracker hint,doubleclick.net,Onbekend,onbekend,Onbekend,ja
+sro.nl,Tracker hint,facebook.net,Onbekend,onbekend,Onbekend,ja
+sro.nl,Tracker hint,google-analytics.com,Google Analytics,analytics/tracking,VS leverancier,ja
+sro.nl,Tracker hint,googletagmanager.com,Google Tag Manager,analytics/tracking,VS leverancier,ja
+sro.nl,Tracker hint,hotjar.com,Onbekend,onbekend,Onbekend,ja
+sro.nl,Tracker hint,matomo,Onbekend,onbekend,Onbekend,ja
+sro.nl,Tracker hint,vimeo.com,Onbekend,onbekend,Onbekend,ja
+sro.nl,Tracker hint,youtube.com,YouTube,video embed,VS leverancier,ja
+sro.nl,Hosting hint,Onbekend,Onbekend,onbekend,Onbekend,ja
+regiogv.nl,MX,10 regiogv-nl.mail.eo.outlook.com,Onbekend,onbekend,Onbekend,ja
+regiogv.nl,SPF include,_spf.zivver.com,Zivver,secure mail,Nederlandse leverancier,ja
+regiogv.nl,SPF include,_spf.zorgmail.nl,Onbekend,onbekend,Onbekend,ja
+regiogv.nl,SPF include,lms.plusport.com,Onbekend,onbekend,Onbekend,ja
+regiogv.nl,SPF include,spf.decoscloud.com,Onbekend,onbekend,Onbekend,ja
+regiogv.nl,SPF include,spf.eprov.nl,Onbekend,onbekend,Onbekend,ja
+regiogv.nl,SPF include,spf.protection.outlook.com,Microsoft 365 / Exchange Online,mail/cloud,VS leverancier met mogelijke EU-regio,ja
+regiogv.nl,SPF include,spf.regiogv.nl,Onbekend,onbekend,Onbekend,ja
+regiogv.nl,External script,fonts.googleapis.com,Google APIs,third-party script,VS leverancier,ja
+regiogv.nl,External script,fonts.gstatic.com,Google Static,third-party script,VS leverancier,ja
+regiogv.nl,External script,www.googletagmanager.com,Google Tag Manager,analytics/tracking,VS leverancier,ja
+regiogv.nl,Tracker hint,googletagmanager.com,Google Tag Manager,analytics/tracking,VS leverancier,ja
+regiogv.nl,Tracker hint,vimeo.com,Onbekend,onbekend,Onbekend,ja
+regiogv.nl,Hosting hint,Onbekend,Onbekend,onbekend,Onbekend,ja
+gad.nl,MX,10 gad-nl.mail.eo.outlook.com,Onbekend,onbekend,Onbekend,ja
+gad.nl,SPF include,_spf.zivver.com,Zivver,secure mail,Nederlandse leverancier,ja
+gad.nl,SPF include,spf.decoscloud.com,Onbekend,onbekend,Onbekend,ja
+gad.nl,SPF include,spf.protection.outlook.com,Microsoft 365 / Exchange Online,mail/cloud,VS leverancier met mogelijke EU-regio,ja
+gad.nl,SPF ip4,149.210.189.175/32,Onbekend,onbekend,Onbekend,ja
+gad.nl,SPF ip4,77.95.101.107/32,Onbekend,onbekend,Onbekend,ja
+gad.nl,SPF ip4,77.95.97.228/32,Onbekend,onbekend,Onbekend,ja
+gad.nl,SPF ip4,77.95.97.236/32,Onbekend,onbekend,Onbekend,ja
+gad.nl,External script,fonts.googleapis.com,Google APIs,third-party script,VS leverancier,ja
+gad.nl,External script,fonts.gstatic.com,Google Static,third-party script,VS leverancier,ja
+gad.nl,External script,www.browsealoud.com,Onbekend,onbekend,Onbekend,ja
+gad.nl,External script,www.googletagmanager.com,Google Tag Manager,analytics/tracking,VS leverancier,ja
+gad.nl,Tracker hint,googletagmanager.com,Google Tag Manager,analytics/tracking,VS leverancier,ja
+gad.nl,Tracker hint,youtube.com,YouTube,video embed,VS leverancier,ja
+gad.nl,Hosting hint,Onbekend,Onbekend,onbekend,Onbekend,ja
+vrgooienvechtstreek.nl,MX,0 vrgooienvechtstreek-nl.mail.protection.outlook.com,Microsoft 365 / Exchange Online,mail/cloud,VS leverancier met mogelijke EU-regio,ja
+vrgooienvechtstreek.nl,SPF include,brandweergooivecht.nl,Onbekend,onbekend,Onbekend,ja
+vrgooienvechtstreek.nl,SPF include,spf.protection.outlook.com,Microsoft 365 / Exchange Online,mail/cloud,VS leverancier met mogelijke EU-regio,ja
+vrgooienvechtstreek.nl,Hosting hint,Onbekend,Onbekend,onbekend,Onbekend,ja
+tomingroep.nl,MX,10 d318578.a.ess.de.barracudanetworks.com,Onbekend,onbekend,Onbekend,ja
+tomingroep.nl,MX,20 d318578.b.ess.de.barracudanetworks.com,Onbekend,onbekend,Onbekend,ja
+tomingroep.nl,SPF include,_spf.zivver.com,Zivver,secure mail,Nederlandse leverancier,ja
+tomingroep.nl,SPF include,bounced.nl,Onbekend,onbekend,Onbekend,ja
+tomingroep.nl,SPF include,servers.mcsv.net,Onbekend,onbekend,Onbekend,ja
+tomingroep.nl,SPF include,spf.ess.de.barracudanetworks.com,Onbekend,onbekend,Onbekend,ja
+tomingroep.nl,SPF include,spf.protection.outlook.com,Microsoft 365 / Exchange Online,mail/cloud,VS leverancier met mogelijke EU-regio,ja
+tomingroep.nl,SPF include,spf.spamcluster.nl,Onbekend,onbekend,Onbekend,ja
+tomingroep.nl,SPF include,spf.sqr.nl,Onbekend,onbekend,Onbekend,ja
+tomingroep.nl,SPF include,spf.topdesk.net,TOPdesk,servicedesk/SaaS,Nederlandse leverancier,ja
+tomingroep.nl,SPF include,spf.tracksoftware.nl,Onbekend,onbekend,Onbekend,ja
+tomingroep.nl,External script,admin.bitninja.io,Onbekend,onbekend,Onbekend,ja
+tomingroep.nl,External script,recaptcha.net,Onbekend,onbekend,Onbekend,ja
+tomingroep.nl,External script,www.googletagmanager.com,Google Tag Manager,analytics/tracking,VS leverancier,ja
+tomingroep.nl,Tracker hint,googletagmanager.com,Google Tag Manager,analytics/tracking,VS leverancier,ja
+tomingroep.nl,Hosting hint,Cloudflare,Cloudflare,cdn/waf,VS leverancier met wereldwijde edge,ja
+dekringloper.nl,MX,10 d318582.a.ess.de.barracudanetworks.com,Onbekend,onbekend,Onbekend,ja
+dekringloper.nl,MX,20 d318582.b.ess.de.barracudanetworks.com,Onbekend,onbekend,Onbekend,ja
+dekringloper.nl,SPF include,_spf.kprs.online,Onbekend,onbekend,Onbekend,ja
+dekringloper.nl,SPF include,_spf.zivver.com,Zivver,secure mail,Nederlandse leverancier,ja
+dekringloper.nl,SPF include,spf.ess.de.barracudanetworks.com,Onbekend,onbekend,Onbekend,ja
+dekringloper.nl,External script,gmpg.org,Onbekend,onbekend,Onbekend,ja
+dekringloper.nl,External script,use.fontawesome.com,Onbekend,onbekend,Onbekend,ja
+dekringloper.nl,External script,www.googletagmanager.com,Google Tag Manager,analytics/tracking,VS leverancier,ja
+dekringloper.nl,Tracker hint,googletagmanager.com,Google Tag Manager,analytics/tracking,VS leverancier,ja
+dekringloper.nl,Hosting hint,Onbekend,Onbekend,onbekend,Onbekend,ja
+ofgv.nl,MX,0 ofgv-nl.mail.protection.outlook.com,Microsoft 365 / Exchange Online,mail/cloud,VS leverancier met mogelijke EU-regio,ja
+ofgv.nl,SPF include,_spf.iprox.nl,Onbekend,onbekend,Onbekend,ja
+ofgv.nl,SPF include,spf.afas.online,Onbekend,onbekend,Onbekend,ja
+ofgv.nl,SPF include,spf.protection.outlook.com,Microsoft 365 / Exchange Online,mail/cloud,VS leverancier met mogelijke EU-regio,ja
+ofgv.nl,SPF include,spf.topdesk.net,TOPdesk,servicedesk/SaaS,Nederlandse leverancier,ja
+ofgv.nl,External script,maxcdn.bootstrapcdn.com,Onbekend,onbekend,Onbekend,ja
+ofgv.nl,Tracker hint,piwik,Onbekend,onbekend,Onbekend,ja
+ofgv.nl,Hosting hint,Onbekend,Onbekend,onbekend,Onbekend,ja
+archiefgooienvechtstreek.nl,MX,30 spamfilter02.ezorg.nl,Onbekend,onbekend,Onbekend,ja
+archiefgooienvechtstreek.nl,MX,20 spamfilter01.ezorg.nl,Onbekend,onbekend,Onbekend,ja
+archiefgooienvechtstreek.nl,MX,10 spamfilter.ezorg.nl,Onbekend,onbekend,Onbekend,ja
+archiefgooienvechtstreek.nl,SPF include,_spf.ezorg.nl,Onbekend,onbekend,Onbekend,ja
+archiefgooienvechtstreek.nl,SPF include,spf.hosting.deventit.net,Onbekend,onbekend,Onbekend,ja
+archiefgooienvechtstreek.nl,SPF include,spf.protection.outlook.com,Microsoft 365 / Exchange Online,mail/cloud,VS leverancier met mogelijke EU-regio,ja
+archiefgooienvechtstreek.nl,External script,cdnjs.cloudflare.com,Cloudflare,cdn/waf,VS leverancier met wereldwijde edge,ja
+archiefgooienvechtstreek.nl,External script,siteimproveanalytics.com,Onbekend,onbekend,Onbekend,ja
+archiefgooienvechtstreek.nl,Tracker hint,siteimprove,Onbekend,onbekend,Onbekend,ja
+archiefgooienvechtstreek.nl,Hosting hint,Onbekend,Onbekend,onbekend,Onbekend,ja
+metropoolregioamsterdam.nl,MX,0 metropoolregioamsterdam-nl.mail.protection.outlook.com,Microsoft 365 / Exchange Online,mail/cloud,VS leverancier met mogelijke EU-regio,ja
+metropoolregioamsterdam.nl,SPF include,_spf.argewebhosting.nl,Onbekend,onbekend,Onbekend,ja
+metropoolregioamsterdam.nl,SPF include,servers.mcsv.net,Onbekend,onbekend,Onbekend,ja
+metropoolregioamsterdam.nl,SPF include,spf.protection.outlook.com,Microsoft 365 / Exchange Online,mail/cloud,VS leverancier met mogelijke EU-regio,ja
+metropoolregioamsterdam.nl,SPF ip4,194.165.34.0/24,Onbekend,onbekend,Onbekend,ja
+metropoolregioamsterdam.nl,SPF ip4,46.17.24.3,Onbekend,onbekend,Onbekend,ja
+metropoolregioamsterdam.nl,SPF ip4,46.17.25.3,Onbekend,onbekend,Onbekend,ja
+metropoolregioamsterdam.nl,SPF ip4,85.17.186.78,Onbekend,onbekend,Onbekend,ja
+metropoolregioamsterdam.nl,SPF ip6,2001:1af8:4200:b1a0:1:1:1:8,Onbekend,onbekend,Onbekend,ja
+metropoolregioamsterdam.nl,Hosting hint,Onbekend,Onbekend,onbekend,Onbekend,ja
+bngbank.nl,MX,5 bngbank-nl.mail.protection.outlook.com,Microsoft 365 / Exchange Online,mail/cloud,VS leverancier met mogelijke EU-regio,ja
+bngbank.nl,SPF include,_spf.emply.com,Onbekend,onbekend,Onbekend,ja
+bngbank.nl,SPF include,_spf.relay.sdworx.com,Onbekend,onbekend,Onbekend,ja
+bngbank.nl,SPF include,_spf.salesforce.com,Onbekend,onbekend,Onbekend,ja
+bngbank.nl,SPF include,spf.datab.nl,Onbekend,onbekend,Onbekend,ja
+bngbank.nl,SPF include,spf.protection.outlook.com,Microsoft 365 / Exchange Online,mail/cloud,VS leverancier met mogelijke EU-regio,ja
+bngbank.nl,SPF ip4,62.58.82.129,Onbekend,onbekend,Onbekend,ja
+bngbank.nl,SPF ip4,62.58.82.130,Onbekend,onbekend,Onbekend,ja
+bngbank.nl,SPF ip4,62.58.82.151,Onbekend,onbekend,Onbekend,ja
+bngbank.nl,SPF ip4,62.58.82.152,Onbekend,onbekend,Onbekend,ja
+bngbank.nl,SPF ip4,62.58.82.178,Onbekend,onbekend,Onbekend,ja
+bngbank.nl,SPF ip4,77.60.52.197,Onbekend,onbekend,Onbekend,ja
+bngbank.nl,Tracker hint,piwik,Onbekend,onbekend,Onbekend,ja
+bngbank.nl,Tracker hint,youtube.com,YouTube,video embed,VS leverancier,ja
+bngbank.nl,Hosting hint,Onbekend,Onbekend,onbekend,Onbekend,ja
+randmeren.com,MX,10 primary.yourfilter.nl,Onbekend,onbekend,Onbekend,ja
+randmeren.com,MX,20 fallback.yourfilter.nl,Onbekend,onbekend,Onbekend,ja
+randmeren.com,SPF include,_spf.yourfilter.nl,Onbekend,onbekend,Onbekend,ja
+randmeren.com,External script,cdn.jsdelivr.net,Onbekend,onbekend,Onbekend,ja
+randmeren.com,External script,code.jquery.com,Onbekend,onbekend,Onbekend,ja
+randmeren.com,External script,consent.cookiebot.com,Onbekend,onbekend,Onbekend,ja
+randmeren.com,External script,fonts.googleapis.com,Google APIs,third-party script,VS leverancier,ja
+randmeren.com,External script,fonts.gstatic.com,Google Static,third-party script,VS leverancier,ja
+randmeren.com,External script,maps.googleapis.com,Google APIs,third-party script,VS leverancier,ja
+randmeren.com,External script,s7.addthis.com,Onbekend,onbekend,Onbekend,ja
+randmeren.com,External script,www.googletagmanager.com,Google Tag Manager,analytics/tracking,VS leverancier,ja
+randmeren.com,Tracker hint,google-analytics.com,Google Analytics,analytics/tracking,VS leverancier,ja
+randmeren.com,Tracker hint,googletagmanager.com,Google Tag Manager,analytics/tracking,VS leverancier,ja
+randmeren.com,Hosting hint,Onbekend,Onbekend,onbekend,Onbekend,ja
+gnr.nl,MX,0 gnr-nl.mail.protection.outlook.com,Microsoft 365 / Exchange Online,mail/cloud,VS leverancier met mogelijke EU-regio,ja
+gnr.nl,SPF include,mailplus.nl,Onbekend,onbekend,Onbekend,ja
+gnr.nl,SPF include,spf.afas.online,Onbekend,onbekend,Onbekend,ja
+gnr.nl,SPF include,spf.exclaimer.net,Onbekend,onbekend,Onbekend,ja
+gnr.nl,SPF include,spf.protection.outlook.com,Microsoft 365 / Exchange Online,mail/cloud,VS leverancier met mogelijke EU-regio,ja
+gnr.nl,SPF include,w3s.easyxs.net,Onbekend,onbekend,Onbekend,ja
+gnr.nl,SPF ip4,212.7.211.214,Onbekend,onbekend,Onbekend,ja
+gnr.nl,External script,fonts.googleapis.com,Google APIs,third-party script,VS leverancier,ja
+gnr.nl,External script,fonts.gstatic.com,Google Static,third-party script,VS leverancier,ja
+gnr.nl,External script,gmpg.org,Onbekend,onbekend,Onbekend,ja
+gnr.nl,External script,www.google.com,Google Workspace of Google diensten,mail/cloud,VS leverancier,ja
+gnr.nl,External script,www.googletagmanager.com,Google Tag Manager,analytics/tracking,VS leverancier,ja
+gnr.nl,External script,www.gstatic.com,Google Static,third-party script,VS leverancier,ja
+gnr.nl,Tracker hint,googletagmanager.com,Google Tag Manager,analytics/tracking,VS leverancier,ja
+gnr.nl,Tracker hint,vimeo.com,Onbekend,onbekend,Onbekend,ja
+gnr.nl,Hosting hint,Onbekend,Onbekend,onbekend,Onbekend,ja
+visitgooivecht.nl,MX,10 visitgooivecht-nl.mail.eo.outlook.com,Onbekend,onbekend,Onbekend,ja
+visitgooivecht.nl,SPF include,_spf.zivver.com,Zivver,secure mail,Nederlandse leverancier,ja
+visitgooivecht.nl,SPF include,spf.protection.outlook.com,Microsoft 365 / Exchange Online,mail/cloud,VS leverancier met mogelijke EU-regio,ja
+visitgooivecht.nl,SPF ip4,149.210.189.175/32,Onbekend,onbekend,Onbekend,ja
+visitgooivecht.nl,SPF ip4,77.95.101.107/32,Onbekend,onbekend,Onbekend,ja
+visitgooivecht.nl,SPF ip4,77.95.97.228/32,Onbekend,onbekend,Onbekend,ja
+visitgooivecht.nl,SPF ip4,77.95.97.236/32,Onbekend,onbekend,Onbekend,ja
+visitgooivecht.nl,External script,assets.plaece.nl,Onbekend,onbekend,Onbekend,ja
+visitgooivecht.nl,External script,www.googletagmanager.com,Google Tag Manager,analytics/tracking,VS leverancier,ja
+visitgooivecht.nl,Tracker hint,googletagmanager.com,Google Tag Manager,analytics/tracking,VS leverancier,ja
+visitgooivecht.nl,Tracker hint,youtube.com,YouTube,video embed,VS leverancier,ja
+visitgooivecht.nl,Hosting hint,Onbekend,Onbekend,onbekend,Onbekend,ja
+huizenduurzaam.nl,MX,0 huizenduurzaam-nl.mail.protection.outlook.com,Microsoft 365 / Exchange Online,mail/cloud,VS leverancier met mogelijke EU-regio,ja
+huizenduurzaam.nl,SPF include,eu.mailgun.org,Onbekend,onbekend,Onbekend,ja
+huizenduurzaam.nl,SPF include,spf.protection.outlook.com,Microsoft 365 / Exchange Online,mail/cloud,VS leverancier met mogelijke EU-regio,ja
+huizenduurzaam.nl,External script,cdnjs.cloudflare.com,Cloudflare,cdn/waf,VS leverancier met wereldwijde edge,ja
+huizenduurzaam.nl,External script,fonts.googleapis.com,Google APIs,third-party script,VS leverancier,ja
+huizenduurzaam.nl,External script,gmpg.org,Onbekend,onbekend,Onbekend,ja
+huizenduurzaam.nl,External script,huizenduurzaam.email-provider.eu,Onbekend,onbekend,Onbekend,ja
+huizenduurzaam.nl,External script,unpkg.com,Onbekend,onbekend,Onbekend,ja
+huizenduurzaam.nl,External script,www.googletagmanager.com,Google Tag Manager,analytics/tracking,VS leverancier,ja
+huizenduurzaam.nl,Tracker hint,googletagmanager.com,Google Tag Manager,analytics/tracking,VS leverancier,ja
+huizenduurzaam.nl,Hosting hint,Onbekend,Onbekend,onbekend,Onbekend,ja
+energieloketten.nl,MX,0 energieloketten-nl.mail.protection.outlook.com,Microsoft 365 / Exchange Online,mail/cloud,VS leverancier met mogelijke EU-regio,ja
+energieloketten.nl,SPF include,mail.zendesk.com,Onbekend,onbekend,Onbekend,ja
+energieloketten.nl,SPF include,mailgun.org,Onbekend,onbekend,Onbekend,ja
+energieloketten.nl,SPF include,spf.protection.outlook.com,Microsoft 365 / Exchange Online,mail/cloud,VS leverancier met mogelijke EU-regio,ja
+energieloketten.nl,Hosting hint,Cloudflare,Cloudflare,cdn/waf,VS leverancier met wereldwijde edge,ja
+regionaalenergieloket.nl,MX,1 aspmx.l.google.com,Google Workspace of Google diensten,mail/cloud,VS leverancier,ja
+regionaalenergieloket.nl,MX,5 alt1.aspmx.l.google.com,Google Workspace of Google diensten,mail/cloud,VS leverancier,ja
+regionaalenergieloket.nl,SPF include,_u.regionaalenergieloket.nl._spf.dmarcli.com,Onbekend,onbekend,Onbekend,ja
+regionaalenergieloket.nl,Hosting hint,Cloudflare,Cloudflare,cdn/waf,VS leverancier met wereldwijde edge,ja
+archiefweb.eu,MX,10 smtp.google.com,Google Workspace of Google diensten,mail/cloud,VS leverancier,ja
+archiefweb.eu,SPF include,146030695.spf08.hubspotemail.net,Onbekend,onbekend,Onbekend,ja
+archiefweb.eu,SPF include,_spf.google.com,Google Workspace of Google diensten,mail/cloud,VS leverancier,ja
+archiefweb.eu,SPF include,_spf.transip.email,Onbekend,onbekend,Onbekend,ja
+archiefweb.eu,SPF include,spf.spamx.denit.net,Onbekend,onbekend,Onbekend,ja
+archiefweb.eu,External script,fonts.googleapis.com,Google APIs,third-party script,VS leverancier,ja
+archiefweb.eu,External script,fonts.gstatic.com,Google Static,third-party script,VS leverancier,ja
+archiefweb.eu,External script,gmpg.org,Onbekend,onbekend,Onbekend,ja
+archiefweb.eu,Hosting hint,Cloudflare,Cloudflare,cdn/waf,VS leverancier met wereldwijde edge,ja
+readspeaker.com,MX,10 aspmx.l.google.com,Google Workspace of Google diensten,mail/cloud,VS leverancier,ja
+readspeaker.com,MX,50 alt1.aspmx.l.google.com,Google Workspace of Google diensten,mail/cloud,VS leverancier,ja
+readspeaker.com,MX,50 alt2.aspmx.l.google.com,Google Workspace of Google diensten,mail/cloud,VS leverancier,ja
+readspeaker.com,MX,100 aspmx2.googlemail.com,Onbekend,onbekend,Onbekend,ja
+readspeaker.com,MX,100 aspmx3.googlemail.com,Onbekend,onbekend,Onbekend,ja
+readspeaker.com,SPF include,_spf.google.com,Google Workspace of Google diensten,mail/cloud,VS leverancier,ja
+readspeaker.com,SPF include,_spf.salesforce.com,Onbekend,onbekend,Onbekend,ja
+readspeaker.com,SPF include,_spf1.readspeaker.com,Onbekend,onbekend,Onbekend,ja
+readspeaker.com,SPF include,aspmx.pardot.com,Onbekend,onbekend,Onbekend,ja
+readspeaker.com,SPF include,spf.eu.exclaimer.net,Onbekend,onbekend,Onbekend,ja
+readspeaker.com,External script,cdn.jsdelivr.net,Onbekend,onbekend,Onbekend,ja
+readspeaker.com,External script,cdnjs.cloudflare.com,Cloudflare,cdn/waf,VS leverancier met wereldwijde edge,ja
+readspeaker.com,External script,eu-assets.i.posthog.com,Onbekend,onbekend,Onbekend,ja
+readspeaker.com,External script,fonts.googleapis.com,Google APIs,third-party script,VS leverancier,ja
+readspeaker.com,External script,fonts.gstatic.com,Google Static,third-party script,VS leverancier,ja
+readspeaker.com,External script,ingest.promptwatch.com,Onbekend,onbekend,Onbekend,ja
+readspeaker.com,External script,kit.fontawesome.com,Onbekend,onbekend,Onbekend,ja
+readspeaker.com,External script,use.typekit.net,Onbekend,onbekend,Onbekend,ja
+readspeaker.com,External script,www.googletagmanager.com,Google Tag Manager,analytics/tracking,VS leverancier,ja
+readspeaker.com,Tracker hint,googletagmanager.com,Google Tag Manager,analytics/tracking,VS leverancier,ja
+readspeaker.com,Tracker hint,hotjar.com,Onbekend,onbekend,Onbekend,ja
+readspeaker.com,Tracker hint,readspeaker,Onbekend,onbekend,Onbekend,ja
+readspeaker.com,Tracker hint,youtube.com,YouTube,video embed,VS leverancier,ja
+readspeaker.com,Hosting hint,Cloudflare,Cloudflare,cdn/waf,VS leverancier met wereldwijde edge,ja
