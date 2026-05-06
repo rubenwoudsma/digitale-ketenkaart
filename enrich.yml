@@ -1,0 +1,61 @@
+name: Enrich footprint data
+
+on:
+  workflow_dispatch:
+    inputs:
+      raw_file:
+        description: Path to raw scanner CSV
+        required: true
+        default: data/raw/2026-05-06/digitale-footprint-gemeente-huizen.csv
+  push:
+    paths:
+      - data/raw/**/*.csv
+      - data/lookups/**/*.csv
+      - scripts/**/*.py
+      - .github/workflows/enrich.yml
+
+permissions:
+  contents: read
+
+jobs:
+  enrich:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run enrichment
+        run: |
+          RAW_FILE="${{ github.event.inputs.raw_file }}"
+          if [ -z "$RAW_FILE" ]; then
+            RAW_FILE="data/raw/2026-05-06/digitale-footprint-gemeente-huizen.csv"
+          fi
+          python scripts/enrich_results.py \
+            --input "$RAW_FILE" \
+            --catalog data/lookups/supplier_catalog.csv \
+            --output-dir data/processed/latest
+
+      - name: Generate markdown report
+        run: |
+          python scripts/generate_markdown_report.py \
+            --processed-dir data/processed/latest \
+            --output reports/latest-analysis.md
+
+      - name: Upload processed data and report
+        uses: actions/upload-artifact@v4
+        with:
+          name: enriched-footprint-results
+          path: |
+            data/processed/latest/*.csv
+            reports/latest-analysis.md
+          retention-days: 30
