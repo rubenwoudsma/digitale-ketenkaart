@@ -1,0 +1,8 @@
+metric,value
+domains_total,24
+dataflow_indicators_total,301
+unique_suppliers_detected,15
+domains_with_us_supplier_indicator,24
+domains_with_nl_or_eu_supplier_indicator,21
+domains_with_high_data_risk_indicator,23
+domains_with_unknown_network_jurisdiction,3
