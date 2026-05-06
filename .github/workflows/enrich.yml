@@ -46,6 +46,17 @@ jobs:
             --catalog data/lookups/sovereignty_catalog.csv \
             --output-dir data/processed/latest
 
+      - name: Summarize sovereignty data
+        run: |
+          python scripts/summarize_sovereignty.py \
+            --processed-dir data/processed/latest
+      
+      - name: Generate blog and Woo pack
+        run: |
+          python scripts/generate_blog_pack.py \
+            --processed-dir data/processed/latest \
+            --reports-dir reports
+
       - name: Generate markdown report
         run: |
           python scripts/generate_markdown_report.py \
@@ -58,4 +69,4 @@ jobs:
           name: processed-footprint-data
           path: |
             data/processed/latest/*.csv
-            reports/latest-analysis.md
+            reports/*.md
