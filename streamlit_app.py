@@ -191,21 +191,20 @@ def compact_columns(df: pd.DataFrame, preferred: List[str]) -> pd.DataFrame:
 # -----------------------------
 
 st.sidebar.title("Digitale Ketenkaart")
-st.sidebar.caption("Dashboard bovenop de processed CSV's.")
+st.sidebar.caption("Publieke analyse van digitale dienstverlening rond gemeente Huizen.")
 
-processed_dir_input = st.sidebar.text_input("Processed data map", value=str(DEFAULT_PROCESSED_DIR))
-reports_dir_input = st.sidebar.text_input("Reports map", value=str(DEFAULT_REPORTS_DIR))
-processed_dir = Path(processed_dir_input)
-reports_dir = Path(reports_dir_input)
+processed_dir = DEFAULT_PROCESSED_DIR
+reports_dir = DEFAULT_REPORTS_DIR
 
-if st.sidebar.button("Cache verversen", use_container_width=True):
+if st.sidebar.button("Data opnieuw laden", use_container_width=True):
     st.cache_data.clear()
     st.rerun()
 
 st.sidebar.divider()
-st.sidebar.markdown("**Interpretatieregel**")
+st.sidebar.markdown("**Belangrijke nuance**")
 st.sidebar.caption(
-    "Publieke indicatoren tonen afhankelijkheden, geen definitief bewijs van datalocatie of juridische doorgifte."
+    "Deze kaart toont publieke aanwijzingen voor digitale afhankelijkheden. Het is geen bewijs dat gegevens buiten Europa worden opgeslagen. "
+    "Daarvoor zijn contracten, verwerkersafspraken en informatie van de gemeente nodig."
 )
 
 
@@ -232,7 +231,7 @@ domains_enriched = data["domains_enriched"]
 
 st.title("Digitale Ketenkaart gemeente Huizen")
 st.caption(
-    "Analyse van publieke domeinen, leveranciersindicatoren, mailketens, frontend scripts, hosting en soevereiniteitsvragen."
+    "Een publieke kaart van websites, leveranciers en technische afhankelijkheden rondom digitale dienstverlening van en rond gemeente Huizen."
 )
 
 if all(df.empty for df in data.values()):
@@ -251,7 +250,6 @@ tabs = st.tabs(
         "Leveranciers",
         "Datastromen",
         "Verificatievragen",
-        "Rapport & blog",
         "Data",
     ]
 )
@@ -270,11 +268,27 @@ with tabs[0]:
     col3.metric("Unieke leveranciers", metric_from_key_findings(key_findings, "unieke_leveranciers", supplier_summary.get("supplier", pd.Series(dtype=str)).nunique() if not supplier_summary.empty else 0))
     col4.metric("P1-vragen", metric_from_key_findings(key_findings, "p1_verificatievragen", int((questions.get("priority", pd.Series(dtype=str)) == "P1").sum()) if not questions.empty else 0))
 
-    st.markdown("### Kernboodschap")
+    st.markdown("### Wat laat deze kaart zien?")
     st.write(
-        "Deze analyse kijkt verder dan webhosting. De digitale keten bestaat ook uit mail, formulieren, scripts, CDN's, analytics, SaaS en cloudplatformen. "
-        "De scan laat publieke indicatoren zien, maar geen definitief bewijs van datalocatie, logginglocaties, back-ups, supporttoegang of formele subverwerkers."
+        "Een gemeentelijke website is vaak meer dan één webserver. Zodra een inwoner een pagina opent, mailt, een formulier invult of een online dienst gebruikt, "
+        "kunnen meerdere organisaties en technische diensten betrokken zijn. Denk aan mailplatformen, formulierenleveranciers, toegankelijkheidsdiensten, analytics, cloudplatformen en beveiligingsdiensten."
     )
+    st.write(
+        "Deze kaart maakt zulke publieke aanwijzingen zichtbaar. Dat betekent niet automatisch dat persoonsgegevens buiten Nederland of Europa worden opgeslagen. "
+        "Het laat wel zien welke onderdelen nader uitgezocht moeten worden om te begrijpen wie betrokken is, welke gegevens kunnen worden verwerkt en welke afspraken daarvoor bestaan."
+    )
+
+    with st.expander("Wat betekenen P1, P2 en P3?"):
+        st.markdown(
+            "- **P1**: hoogste prioriteit voor verificatie, bijvoorbeeld omdat een leverancier met niet-Europese jurisdictie wordt gecombineerd met een hoog datarisico.
+"
+            "- **P2**: nader onderzoeken, bijvoorbeeld omdat er een relevante leverancier of datastroom zichtbaar is, maar de urgentie lager is dan P1.
+"
+            "- **P3**: lagere prioriteit, maar nog steeds nuttig om te controleren voor een compleet beeld.
+
+"
+            "Deze prioriteiten zijn geen oordeel dat iets fout is. Ze helpen bepalen welke vragen als eerste aan de gemeente of leverancier gesteld moeten worden."
+        )
 
     left, right = st.columns([1.2, 1])
     with left:
@@ -343,18 +357,29 @@ with tabs[1]:
     else:
         source = domain_priority if not domain_priority.empty else domains_network
 
-        c1, c2, c3 = st.columns([2, 1, 1])
+        st.write(
+            "Dit overzicht laat per domein zien welke rol het domein lijkt te hebben in de publieke digitale keten, welke leveranciersindicatoren zijn gevonden en welke vragen prioriteit krijgen."
+        )
+        c1, c2, c3, c4 = st.columns([2, 1, 1.4, 1])
         query = c1.text_input("Zoek in domeinen", key="domain_query")
         priority_filter = c2.multiselect(
             "Prioriteit",
             options=sorted(source["priority"].dropna().unique().tolist()) if "priority" in source.columns else [],
             default=sorted(source["priority"].dropna().unique().tolist()) if "priority" in source.columns else [],
         )
-        only_us = c3.checkbox("Alleen US-indicatie", value=False)
+        public_layer_options = sorted(source["public_service_layer"].dropna().unique().tolist()) if "public_service_layer" in source.columns else []
+        public_layer_filter = c3.multiselect(
+            "Relatie met publieke keten",
+            options=public_layer_options,
+            default=public_layer_options,
+        )
+        only_us = c4.checkbox("Alleen US-indicatie", value=False)
 
         filtered = filter_text(source, query)
         if priority_filter and "priority" in filtered.columns:
             filtered = filtered[filtered["priority"].isin(priority_filter)]
+        if public_layer_filter and "public_service_layer" in filtered.columns:
+            filtered = filtered[filtered["public_service_layer"].isin(public_layer_filter)]
         if only_us and "us_supplier_count" in filtered.columns:
             filtered = filtered[filtered["us_supplier_count"].fillna(0) > 0]
 
@@ -379,10 +404,17 @@ with tabs[1]:
 
             if not dataflow.empty and "domain" in dataflow.columns:
                 st.markdown("#### Datastroomindicatoren")
+                st.caption(
+                    "Dit zijn publieke aanwijzingen dat een domein gebruikmaakt van een leverancier of technische dienst, bijvoorbeeld via mailrecords, scripts, hostinginformatie of CDN's. "
+                    "Een indicator is een startpunt voor onderzoek, geen definitief bewijs van gegevensopslag of juridische doorgifte."
+                )
                 st.dataframe(dataflow[dataflow["domain"] == selected_domain], use_container_width=True, hide_index=True)
 
             if not questions.empty and "domain" in questions.columns:
                 st.markdown("#### Verificatievragen")
+                st.caption(
+                    "Dit zijn vragen die nodig zijn om de publieke aanwijzingen te bevestigen of te nuanceren. Denk aan vragen over datalocatie, logging, back-ups, subverwerkers en supporttoegang."
+                )
                 st.dataframe(sort_by_priority(questions[questions["domain"] == selected_domain]), use_container_width=True, hide_index=True)
 
 
@@ -443,6 +475,13 @@ with tabs[2]:
 
 with tabs[3]:
     st.subheader("Datastromen")
+    st.write(
+        "Een datastroomindicator laat zien dat er publiek zichtbare technische betrokkenheid is van een leverancier of dienst. "
+        "Voorbeelden zijn een SPF-record voor e-mail, een extern script op een webpagina, een CDN, een hostingprovider of een analyticsdienst."
+    )
+    st.info(
+        "Lees dit als een onderzoekssignaal. De indicator toont dat een partij technisch in beeld komt, maar niet automatisch welke persoonsgegevens worden verwerkt of waar die data wordt opgeslagen."
+    )
 
     if dataflow.empty:
         show_missing_file_notice("dataflow_matrix", processed_dir / CSV_FILES["dataflow_matrix"])
@@ -479,6 +518,14 @@ with tabs[3]:
 
 with tabs[4]:
     st.subheader("Verificatievragen")
+    st.write(
+        "De verificatievragen helpen om van publieke signalen naar feitelijke zekerheid te gaan. "
+        "Ze zijn bedoeld voor vervolgonderzoek, gesprekken met leveranciers of een Woo-verzoek aan de gemeente."
+    )
+    st.markdown(
+        "**Prioriteiten:** P1 betekent als eerste uitzoeken, P2 betekent relevant vervolgonderzoek, P3 betekent lagere prioriteit voor een compleet beeld. "
+        "Een P1-vraag betekent niet dat er iets mis is, maar dat de combinatie van leverancier, datarisico en publieke dienstverlening om verduidelijking vraagt."
+    )
 
     if questions.empty:
         show_missing_file_notice("verification_questions", processed_dir / CSV_FILES["verification_questions"])
@@ -513,40 +560,10 @@ with tabs[4]:
 
 
 # -----------------------------
-# Reports and blog
-# -----------------------------
-
-with tabs[5]:
-    st.subheader("Rapport & blog")
-
-    available_reports = {title: text for title, text in reports.items() if text}
-    if not available_reports:
-        st.info("Geen Markdown-rapporten gevonden in de reports-map. Draai `generate_blog_pack.py` eerst.")
-    else:
-        report_title = st.selectbox("Kies document", options=list(available_reports.keys()))
-        st.markdown(available_reports[report_title])
-
-        report_filename = REPORT_FILES.get(report_title, "report.md")
-        st.download_button(
-            label=f"Download {report_filename}",
-            data=available_reports[report_title].encode("utf-8"),
-            file_name=report_filename,
-            mime="text/markdown",
-            use_container_width=True,
-        )
-
-    st.markdown("### Publicatieadvies")
-    st.write(
-        "Gebruik de blog als publieke probleemschets en het Woo-verzoek als verificatie-instrument. "
-        "Publiceer geen harde claims over datalocatie of AVG-overtredingen zonder aanvullende bronnen."
-    )
-
-
-# -----------------------------
 # Raw data explorer
 # -----------------------------
 
-with tabs[6]:
+with tabs[5]:
     st.subheader("Data")
 
     dataset_names = [key for key, df in data.items() if not df.empty]
