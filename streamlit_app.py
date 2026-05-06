@@ -278,14 +278,13 @@ with tabs[0]:
 
     with st.expander("Wat betekenen P1, P2 en P3?"):
         st.markdown(
-            "- **P1**: hoogste prioriteit voor verificatie, bijvoorbeeld omdat een leverancier met niet-Europese jurisdictie wordt gecombineerd met een hoog datarisico.
-"
-            "- **P2**: nader onderzoeken, bijvoorbeeld omdat er een relevante leverancier of datastroom zichtbaar is, maar de urgentie lager is dan P1.
-"
-            "- **P3**: lagere prioriteit, maar nog steeds nuttig om te controleren voor een compleet beeld.
-
-"
-            "Deze prioriteiten zijn geen oordeel dat iets fout is. Ze helpen bepalen welke vragen als eerste aan de gemeente of leverancier gesteld moeten worden."
+            """
+        - **P1**: hoogste prioriteit voor verificatie, bijvoorbeeld omdat een leverancier met niet-Europese jurisdictie wordt gecombineerd met een hoog datarisico.
+        - **P2**: nader onderzoeken, bijvoorbeeld omdat er een relevante leverancier of datastroom zichtbaar is, maar de urgentie lager is dan P1.
+        - **P3**: lagere prioriteit, maar nog steeds nuttig om te controleren voor een compleet beeld.
+        
+        Deze prioriteiten zijn geen oordeel dat iets fout is. Ze helpen bepalen welke vragen als eerste aan de gemeente of leverancier gesteld moeten worden.
+        """
         )
 
     left, right = st.columns([1.2, 1])
