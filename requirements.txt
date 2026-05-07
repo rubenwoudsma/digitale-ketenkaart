@@ -5,3 +5,5 @@ dnspython
 beautifulsoup4
 tldextract
 tabulate
+markdown
+jinja2
