@@ -2,12 +2,7 @@
 
 > OSINT-pipeline voor het in kaart brengen van digitale overheidsketens, domeinen, leveranciers, datastromen, hostingindicatoren en soevereiniteitsvragen.
 
-!\[Python](https://img.shields.io/badge/Python-3.11+-3776AB?logo=python\&logoColor=white)
-!\[Streamlit](https://img.shields.io/badge/Streamlit-dashboard-FF4B4B?logo=streamlit\&logoColor=white)
-!\[Pandas](https://img.shields.io/badge/Pandas-data%20pipeline-150458?logo=pandas\&logoColor=white)
-!\[GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-automation-2088FF?logo=githubactions\&logoColor=white)
-!\[GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-static%20site-222222?logo=githubpages\&logoColor=white)
-!\[License](https://img.shields.io/badge/License-MIT-green)
+![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white) ![Streamlit](https://img.shields.io/badge/Streamlit-dashboard-FF4B4B?logo=streamlit&logoColor=white) ![Pandas](https://img.shields.io/badge/Pandas-data%20pipeline-150458?logo=pandas&logoColor=white) ![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-automation-2088FF?logo=githubactions&logoColor=white) ![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-static%20site-222222?logo=githubpages&logoColor=white) ![License](https://img.shields.io/badge/License-MIT-green)
 
 ## Waar is dit voor?
 
@@ -65,38 +60,38 @@ raw scan CSV
   v
 enrich\_results.py
   |
-  +--> domains\_enriched.csv
-  +--> supplier\_indicators.csv
+  +--> domains_enriched.csv
+  +--> supplier_indicators.csv
   +--> summary.csv
   |
   v
-enrich\_network.py
+enrich_network.py
   |
-  +--> domains\_network\_enriched.csv
-  +--> rdap\_cache.json
-  |
-  v
-enrich\_sovereignty.py
-  |
-  +--> dataflow\_matrix.csv
-  +--> sovereignty\_summary.csv
-  +--> verification\_questions.csv
+  +--> domains_network_enriched.csv
+  +--> rdap_cache.json
   |
   v
-summarize\_sovereignty.py
+enrich_sovereignty.py
   |
-  +--> supplier\_summary.csv
-  +--> domain\_priority\_summary.csv
-  +--> service\_layer\_summary.csv
-  +--> key\_findings.csv
+  +--> dataflow_matrix.csv
+  +--> sovereignty_summary.csv
+  +--> verification_questions.csv
   |
   v
-generate\_markdown\_report.py
-generate\_blog\_pack.py
-generate\_pages.py
+summarize_sovereignty.py
   |
-  +--> reports/\*.md
-  +--> docs/\*.html
+  +--> supplier_summary.csv
+  +--> domain_priority_summary.csv
+  +--> service_layer_summary.csv
+  +--> key_findings.csv
+  |
+  v
+generate_markdown_report.py
+generate_blog_pack.py
+generate_pages.py
+  |
+  +--> reports*.md
+  +--> docs*.html
   |
   v
 Streamlit dashboard
@@ -113,21 +108,21 @@ digitale-ketenkaart/
 │       └── pages.yml
 ├── data/
 │   ├── lookups/
-│   │   ├── supplier\_catalog.csv
-│   │   └── sovereignty\_catalog.csv
+│   │   ├── supplier_catalog.csv
+│   │   └── sovereignty_catalog.csv
 │   ├── processed/
 │   │   └── latest/
-│   │       ├── dataflow\_matrix.csv
-│   │       ├── domain\_priority\_summary.csv
-│   │       ├── domains\_enriched.csv
-│   │       ├── domains\_network\_enriched.csv
-│   │       ├── key\_findings.csv
-│   │       ├── service\_layer\_summary.csv
-│   │       ├── sovereignty\_summary.csv
+│   │       ├── dataflow_matrix.csv
+│   │       ├── domain_priority_summary.csv
+│   │       ├── domains_enriched.csv
+│   │       ├── domains_network_enriched.csv
+│   │       ├── key_findings.csv
+│   │       ├── service_layer_summary.csv
+│   │       ├── sovereignty_summary.csv
 │   │       ├── summary.csv
-│   │       ├── supplier\_indicators.csv
-│   │       ├── supplier\_summary.csv
-│   │       └── verification\_questions.csv
+│   │       ├── supplier_indicators.csv
+│   │       ├── supplier_summary.csv
+│   │       └── verification_questions.csv
 │   └── raw/
 │       └── 2026-05-06/
 │           ├── digitale-footprint-gemeente-huizen.csv
@@ -148,14 +143,14 @@ digitale-ketenkaart/
 │   ├── methodology-note.md
 │   └── woo-vragenpakket.md
 ├── scripts/
-│   ├── enrich\_results.py
-│   ├── enrich\_network.py
-│   ├── enrich\_sovereignty.py
-│   ├── summarize\_sovereignty.py
-│   ├── generate\_markdown\_report.py
-│   ├── generate\_blog\_pack.py
-│   └── generate\_pages.py
-├── streamlit\_app.py
+│   ├── enrich_results.py
+│   ├── enrich_network.py
+│   ├── enrich_sovereignty.py
+│   ├── summarize_sovereignty.py
+│   ├── generate_markdown_report.py
+│   ├── generate_blog_pack.py
+│   └── generate_pages.py
+├── streamlit_app.py
 ├── requirements.txt
 ├── LICENSE
 └── README.md
@@ -207,77 +202,77 @@ pip install -r requirements.txt
 ### 1\. Domeinen verrijken
 
 ```bash
-python scripts/enrich\_results.py \\
+python scripts/enrich_results.py \\
   --input data/raw/2026-05-06/digitale-footprint-gemeente-huizen.csv \\
-  --catalog data/lookups/supplier\_catalog.csv \\
+  --catalog data/lookups/supplier_catalog.csv \\
   --output-dir data/processed/latest
 ```
 
 Output:
 
 ```text
-data/processed/latest/domains\_enriched.csv
-data/processed/latest/supplier\_indicators.csv
+data/processed/latest/domains_enriched.csv
+data/processed/latest/supplier_indicators.csv
 data/processed/latest/summary.csv
 ```
 
 ### 2\. Netwerk- en hostinginformatie verrijken
 
 ```bash
-python scripts/enrich\_network.py \\
-  --input data/processed/latest/domains\_enriched.csv \\
-  --output data/processed/latest/domains\_network\_enriched.csv
+python scripts/enrich_network.py \\
+  --input data/processed/latest/domains_enriched.csv \\
+  --output data/processed/latest/domains_network_enriched.csv
 ```
 
 Output:
 
 ```text
-data/processed/latest/domains\_network\_enriched.csv
-data/processed/latest/rdap\_cache.json
+data/processed/latest/domains_network_enriched.csv
+data/processed/latest/rdap_cache.json
 ```
 
 ### 3\. Soevereiniteitsanalyse maken
 
 ```bash
-python scripts/enrich\_sovereignty.py \\
-  --domains data/processed/latest/domains\_network\_enriched.csv \\
-  --suppliers data/processed/latest/supplier\_indicators.csv \\
-  --catalog data/lookups/sovereignty\_catalog.csv \\
+python scripts/enrich_sovereignty.py \\
+  --domains data/processed/latest/domains_network_enriched.csv \\
+  --suppliers data/processed/latest/supplier_indicators.csv \\
+  --catalog data/lookups/sovereignty_catalog.csv \\
   --output-dir data/processed/latest
 ```
 
 Output:
 
 ```text
-data/processed/latest/dataflow\_matrix.csv
-data/processed/latest/sovereignty\_summary.csv
-data/processed/latest/verification\_questions.csv
+data/processed/latest/dataflow_matrix.csv
+data/processed/latest/sovereignty_summary.csv
+data/processed/latest/verification_questions.csv
 ```
 
 ### 4\. Samenvattingen maken
 
 ```bash
-python scripts/summarize\_sovereignty.py \\
+python scripts/summarize_sovereignty.py \\
   --processed-dir data/processed/latest
 ```
 
 Output:
 
 ```text
-data/processed/latest/supplier\_summary.csv
-data/processed/latest/domain\_priority\_summary.csv
-data/processed/latest/service\_layer\_summary.csv
-data/processed/latest/key\_findings.csv
+data/processed/latest/supplier_summary.csv
+data/processed/latest/domain_priority_summary.csv
+data/processed/latest/service_layer_summary.csv
+data/processed/latest/key_findings.csv
 ```
 
 ### 5\. Rapporten genereren
 
 ```bash
-python scripts/generate\_markdown\_report.py \\
+python scripts/generate_markdown_report.py \\
   --processed-dir data/processed/latest \\
   --output reports/latest-analysis.md
 
-python scripts/generate\_blog\_pack.py \\
+python scripts/generate_blog_pack.py \\
   --processed-dir data/processed/latest \\
   --reports-dir reports
 ```
@@ -295,7 +290,7 @@ reports/methodology-note.md
 ### 6\. GitHub Pages-site genereren
 
 ```bash
-python scripts/generate\_pages.py
+python scripts/generate_pages.py
 ```
 
 Output:
@@ -307,40 +302,40 @@ docs/methode.html
 docs/ketenkaart.html
 docs/woo.html
 docs/downloads.html
-docs/data/\*.csv
-docs/reports/\*.md
+docs/data/*.csv
+docs/reports/*.md
 ```
 
 ## Alles lokaal achter elkaar draaien
 
 ```bash
-python scripts/enrich\_results.py \\
+python scripts/enrich_results.py \\
   --input data/raw/2026-05-06/digitale-footprint-gemeente-huizen.csv \\
-  --catalog data/lookups/supplier\_catalog.csv \\
+  --catalog data/lookups/supplier_catalog.csv \\
   --output-dir data/processed/latest
 
-python scripts/enrich\_network.py \\
-  --input data/processed/latest/domains\_enriched.csv \\
-  --output data/processed/latest/domains\_network\_enriched.csv
+python scripts/enrich_network.py \\
+  --input data/processed/latest/domains_enriched.csv \\
+  --output data/processed/latest/domains_network_enriched.csv
 
 python scripts/enrich\_sovereignty.py \\
-  --domains data/processed/latest/domains\_network\_enriched.csv \\
-  --suppliers data/processed/latest/supplier\_indicators.csv \\
-  --catalog data/lookups/sovereignty\_catalog.csv \\
+  --domains data/processed/latest/domains_network_enriched.csv \\
+  --suppliers data/processed/latest/supplier_indicators.csv \\
+  --catalog data/lookups/sovereignty_catalog.csv \\
   --output-dir data/processed/latest
 
-python scripts/summarize\_sovereignty.py \\
+python scripts/summarize_sovereignty.py \\
   --processed-dir data/processed/latest
 
-python scripts/generate\_markdown\_report.py \\
+python scripts/generate_markdown_report.py \\
   --processed-dir data/processed/latest \\
   --output reports/latest-analysis.md
 
-python scripts/generate\_blog\_pack.py \\
+python scripts/generate_blog_pack.py \\
   --processed-dir data/processed/latest \\
   --reports-dir reports
 
-python scripts/generate\_pages.py
+python scripts/generate_pages.py
 ```
 
 ## Streamlit-dashboard
@@ -348,7 +343,7 @@ python scripts/generate\_pages.py
 Start het interactieve dashboard lokaal:
 
 ```bash
-streamlit run streamlit\_app.py
+streamlit run streamlit_app.py
 ```
 
 Het dashboard gebruikt standaard:
@@ -387,12 +382,12 @@ De workflow draait de pipeline en uploadt de resultaten als workflow artifact.
 Typische stappen:
 
 ```text
-enrich\_results.py
-enrich\_network.py
-enrich\_sovereignty.py
-summarize\_sovereignty.py
-generate\_markdown\_report.py
-generate\_blog\_pack.py
+enrich_results.py
+enrich_network.py
+enrich_sovereignty.py
+summarize_sovereignty.py
+generate_markdown_report.py
+generate_blog_pack.py
 ```
 
 ### Pages workflow
@@ -407,23 +402,23 @@ Deze workflow genereert de statische site in `docs/` en publiceert deze via GitH
 
 ## Belangrijkste datasets
 
-### `domains\_enriched.csv`
+### `domains_enriched.csv`
 
 Verrijkte domeintabel met basisinformatie, mailrecords, security headers, hosting hints en risicosignalen.
 
-### `domains\_network\_enriched.csv`
+### `domains_network_enriched.csv`
 
 Uitbreiding van `domains\_enriched.csv` met RDAP-, netwerk-, hosting- en jurisdictie-indicaties.
 
-### `supplier\_indicators.csv`
+### `supplier_indicators.csv`
 
 Genormaliseerde indicatoren van leveranciers uit MX, SPF, externe scripts, tracker hints en hostingvelden.
 
-### `dataflow\_matrix.csv`
+### `dataflow_matrix.csv`
 
 Onderzoeksdataset waarin domeinen, leveranciers, service layers, jurisdictie-indicaties en mogelijke datacategorieën samenkomen.
 
-### `domain\_priority\_summary.csv`
+### `domain_priority_summary.csv`
 
 Samenvatting per domein, geschikt voor dashboard en prioritering.
 
@@ -432,15 +427,15 @@ Bevat onder andere:
 ```text
 domain
 priority
-public\_service\_layer
-personal\_data\_likelihood
-us\_supplier\_count
-high\_risk\_supplier\_count
-p1\_questions\_count
-priority\_reason
+public_service_layer
+personal_data_likelihood
+us_supplier_count
+high_risk_supplier_count
+p1_questions_count
+priority_reason
 ```
 
-### `supplier\_summary.csv`
+### `supplier_summary.csv`
 
 Samenvatting per leverancier of dienst.
 
@@ -448,18 +443,18 @@ Bevat onder andere:
 
 ```text
 supplier
-supplier\_type
-jurisdiction\_groups
-domains\_count
-indicator\_count
-service\_layers
-highest\_data\_risk
-p1\_questions\_count
-typical\_data
-example\_domains
+supplier_type
+jurisdiction_groups
+domains_count
+indicator_count
+service_layers
+highest_data_risk
+p1_questions_count
+typical_data
+example_domains
 ```
 
-### `verification\_questions.csv`
+### `verification_questions.csv`
 
 Concrete vragen voor verificatie bij gemeente, leveranciers of via een Woo-verzoek.
 
@@ -491,9 +486,9 @@ Domain
 
 |Service layer|Betekenis|
 |-|-|
-|mx\_spf|Mailketen, bijvoorbeeld MX en SPF|
-|frontend\_scripts|Scripts, embeds, analytics, tag managers|
-|network\_hosting|Hosting, CDN, WAF, ASN, RDAP|
+|mx_spf|Mailketen, bijvoorbeeld MX en SPF|
+|frontend_scripts|Scripts, embeds, analytics, tag managers|
+|network_hosting|Hosting, CDN, WAF, ASN, RDAP|
 |unknown|Niet eenduidig te classificeren|
 
 ### Indicatoren
@@ -507,11 +502,11 @@ SPF ip4/ip6
 CNAME
 nameservers
 server headers
-external\_script\_domains
-tracker\_hints
-hosting\_hint
-network\_provider\_hint
-cloud\_or\_cdn\_hint
+external_script_domains
+tracker_hints
+hosting_hint
+network_provider_hint
+cloud_or_cdn_hint
 ```
 
 ## Interpretatie
@@ -562,7 +557,7 @@ Doe niet zonder toestemming:
 
 1. Maak een nieuwe raw scan CSV.
 2. Zet deze in `data/raw/<datum>/`.
-3. Pas eventueel `supplier\_catalog.csv` en `sovereignty\_catalog.csv` aan.
+3. Pas eventueel `supplier_catalog.csv` en `sovereignty_catalog.csv` aan.
 4. Draai de pipeline opnieuw.
 5. Controleer de output handmatig.
 6. Publiceer alleen met duidelijke methodologische nuance.
@@ -570,9 +565,9 @@ Doe niet zonder toestemming:
 Voorbeeld:
 
 ```bash
-python scripts/enrich\_results.py \\
+python scripts/enrich_results.py \\
   --input data/raw/2026-05-07/digitale-footprint-gemeente-x.csv \\
-  --catalog data/lookups/supplier\_catalog.csv \\
+  --catalog data/lookups/supplier_catalog.csv \\
   --output-dir data/processed/latest
 ```
 
